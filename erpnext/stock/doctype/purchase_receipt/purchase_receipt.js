@@ -52,6 +52,8 @@ frappe.ui.form.on("Purchase Receipt", {
 		if(frm.doc.company) {
 			frm.trigger("toggle_display_account_head");
 		}
+		// Hide Open Customer edit form  child table
+		cur_frm.fields_dict['items'].grid.wrapper.find('.btn-open-row').hide();
 		//------Remove Add Row button in child table in logistic notice
 		frm.set_df_property('items', 'cannot_add_rows', true);
 
