@@ -152,10 +152,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 		this._super();
 		var allow_receipt = false;
 		var is_drop_ship = false;
-
-		// Hide Open Customer edit form  child table
-		cur_frm.fields_dict['items'].grid.wrapper.find('.btn-open-row').hide();
-
+		
 		for (var i in cur_frm.doc.items) {
 			var item = cur_frm.doc.items[i];
 			if(item.delivered_by_supplier !== 1) {
