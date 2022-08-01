@@ -34,3 +34,27 @@ frappe.listview_settings['Purchase Order'] = {
 		});
 	}
 };
+
+frappe.listview_settings['Purchase Order'].onload = function(listview) {
+	listview.page.actions.find('[data-label="Edit"],[data-label="Assign To"],[data-label="Apply Assignment Rule"], [data-label="Add Tags"]').parent().parent().remove();
+};
+
+frappe.listview_settings['Purchase Order'] =
+frappe.get_indicator = function(doc, doctype) {
+	
+	var settings = frappe.listview_settings[doctype] || {};
+
+	var is_submittable = frappe.model.is_submittable(doctype),
+		workflow_fieldname = frappe.workflow.get_state_fieldname(doctype);
+
+	// Draft If Document Change The Name is Open
+	if(is_submittable && doc.docstatus===0 && !settings.has_indicator_for_draft || doc.po_status === "Open") {
+		return [__("Open"), "red", "docstatus,=,0"];
+    } else if (doc.po_status === "Proposed Ready Date") {
+		return [__("Proposed Ready Date"), "blue", "status,=,Proposed Ready Date"];
+	} else if (doc.po_status === "Ready") {
+		return [__("Ready"), "green", "status,=,Ready"];
+	} else if (doc.po_status === "Shipped") {
+		return [__("Shipped"), "purple", "status,=,Shipped"];
+	}
+}

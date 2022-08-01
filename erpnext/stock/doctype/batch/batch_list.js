@@ -10,5 +10,9 @@ frappe.listview_settings['Batch'] = {
 		} else {
 			return [__("Active"), "green", "batch_qty,>,0|disabled,=,0"];
 		};
-	}
+	},
+	hide_name_column: true,
+    onload: function(me) {
+      me.$page.find(`div[data-fieldname='name']`).addClass('hide');
+    }
 };

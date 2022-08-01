@@ -49,6 +49,7 @@ frappe.ui.form.on("Purchase Receipt", {
 	},
 
 	refresh: function(frm) {
+		frm.dashboard.links_area.hide();
 		if(frm.doc.company) {
 			frm.trigger("toggle_display_account_head");
 		}
@@ -134,7 +135,36 @@ frappe.ui.form.on("Purchase Receipt", {
 			frm.refresh_field("total_qty", total_qty);
 		});
 		frm.set_value("total_qty", Math.abs(total_qty));
-	}
+	},
+	// when purchase receipt submitted then PO status Show "Ready" 
+	before_submit : function(frm) {
+        frappe.call({
+            "method": "frappe.client.set_value",
+            "args": {
+                "doctype": "Purchase Order",
+                "name": frm.doc.purchase_order,
+                "fieldname": {"po_status" : "Ready" },
+                
+            }
+        });
+        console.log('purchase order updated is=')
+        console.log(frm.doc.purchase_order)
+    },
+	//If purchase receipt change the  Quantity Yield the total also change that change total fetch in account payable.
+	on_submit : function(frm) {
+        frappe.call({
+            "method": "frappe.client.set_value",
+            "args": {
+                "doctype": "Account Payable",
+                "name": frm.doc.purchase_order,
+                "fieldname": "total_payable_after_revision",
+                "value": frm.doc.total,
+                
+            }
+        });
+        console.log('Account payable updated is=')
+        console.log(frm.doc.purchase_order)
+    }
 });
 
 frappe.ui.form.on("Purchase Receipt Item", {

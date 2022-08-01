@@ -4,5 +4,9 @@ frappe.listview_settings['Supplier'] = {
 		if(cint(doc.on_hold)) {
 			return [__("On Hold"), "red"];
 		}
-	}
+	},
+	hide_name_column: true,
+    onload: function(me) {
+      me.$page.find(`div[data-fieldname='name']`).addClass('hide');
+    }
 };

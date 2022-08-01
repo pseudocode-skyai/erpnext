@@ -107,6 +107,20 @@ frappe.ui.form.on("Purchase Order", {
 			frm.refresh_field("total_qty", total_qty);
 		});
 		frm.set_value("total_qty", Math.abs(total_qty));
+	},
+	refresh(frm) {
+    	    // Status Button 
+    	if (frm.doc.docstatus == 1 ) {
+    	    if (frm.doc.po_status != "Proposed Ready Date" ) {
+        	    frm.add_custom_button(__("Proposed Ready Date"), function() {
+        	    	cur_frm.doc.po_status="Proposed Ready Date";
+            		cur_frm.refresh_fields('po_status');	
+            	}, __("Update Status"));
+    	    }
+
+        }
+        //  Filter PRODUCT based on Supplier
+    cur_frm.fields_dict['items'].grid.get_field('item_code').get_query = function(doc, cdt, cdn) { return { filters:{'supplier': doc.supplier} } } 
 	}
 });
 

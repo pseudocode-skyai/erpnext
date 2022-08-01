@@ -1,4 +1,9 @@
 frappe.listview_settings['Item'] = {
+	hide_name_column: true,
+    onload: function(me) {
+      me.$page.find(`div[data-fieldname='name']`).addClass('hide');
+    },
+	
 	add_fields: ["item_name", "stock_uom", "item_group", "image", "variant_of",
 		"has_variants", "end_of_life", "disabled"],
 	filters: [["disabled", "=", "0"]],

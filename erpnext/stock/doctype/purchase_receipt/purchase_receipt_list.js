@@ -13,5 +13,9 @@ frappe.listview_settings['Purchase Receipt'] = {
 		} else if (flt(doc.grand_total) === 0 || flt(doc.per_billed, 2) === 100) {
 			return [__("Completed"), "green", "per_billed,=,100"];
 		}
+	},
+	hide_name_column: true,
+	onload: function(me) {
+	 me.$page.find(`div[data-fieldname='status']`).addClass('hide');
 	}
 };
