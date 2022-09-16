@@ -77,7 +77,6 @@
    "fieldname": "brand",
    "fieldtype": "Read Only",
    "hidden": 1,
-   "in_list_view": 1,
    "label": "Brand",
    "read_only": 1
   },
@@ -223,7 +222,7 @@
  "idx": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-26 23:56:41.529855",
+ "modified": "2022-09-16 04:19:46.445600",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Price",
