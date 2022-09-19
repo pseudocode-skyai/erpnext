@@ -315,7 +315,12 @@ class PurchaseReceipt(BuyingController):
 					d.db_set('batch_no', '')
 					frappe.delete_doc('Batch', delete_batch)
 					d.batch_no = d.get("batch_number")
-					
+
+	def validate(self):
+		for d in self.get("items"):
+			if d.manufacturing_date >= d.expiry_date:
+				frappe.throw(_("Expiry Date {0},Cannot Be Select Before or Same  Manufacturing Date {1}"). format(d.expiry_date,d.manufacturing_date))
+
 	def make_item_gl_entries(self, gl_entries, warehouse_account=None):
 		if erpnext.is_perpetual_inventory_enabled(self.company):
 			stock_rbnb = self.get_company_default("stock_received_but_not_billed")
