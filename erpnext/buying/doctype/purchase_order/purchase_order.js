@@ -216,8 +216,8 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 					if(flt(doc.per_received) < 100 && allow_receipt && doc.po_status != "Ready" && doc.po_status != "Shipped" ) {
 						cur_frm.add_custom_button(__('Ready PO'), this.make_purchase_receipt, __('Update Status'));
 					}
-					if (frm.doc.po_status != "Proposed Ready Date" && frm.doc.po_status != "Ready" && frm.doc.po_status != "Shipped") {
-						frm.add_custom_button(__("Proposed Ready Date"), function() {
+					if (this.frm.doc.po_status != "Proposed Ready Date" && this.frm.doc.po_status != "Ready" && this.frm.doc.po_status != "Shipped") {
+						this.frm.add_custom_button(__("Proposed Ready Date"), function() {
 							cur_frm.doc.po_status="Proposed Ready Date";
 							cur_frm.refresh_fields('po_status');
 						}, __("Update Status"));
