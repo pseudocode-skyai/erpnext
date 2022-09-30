@@ -530,9 +530,9 @@
      {
       "fieldname": "total_qty",
       "fieldtype": "Float",
+      "hidden": 1,
       "label": "Total Quantity",
-      "precision": "0",
-      "read_only": 1
+      "precision": "0"
      },
      {
       "fieldname": "base_total",
@@ -1195,7 +1195,7 @@
     "idx": 261,
     "is_submittable": 1,
     "links": [],
-    "modified": "2022-07-21 08:56:36.875030",
+    "modified": "2022-09-23 00:32:35.704879",
     "modified_by": "Administrator",
     "module": "Stock",
     "name": "Purchase Receipt",
