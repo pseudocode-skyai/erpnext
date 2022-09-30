@@ -214,6 +214,7 @@ class PurchaseReceipt(BuyingController):
 	def on_submit(self):
 		super(PurchaseReceipt, self).on_submit()
 
+
 		# Check for Approving Authority
 		frappe.get_doc("Authorization Control").validate_approving_authority(
 			self.doctype, self.company, self.base_grand_total
@@ -224,6 +225,7 @@ class PurchaseReceipt(BuyingController):
 			self.update_billing_status()
 		else:
 			self.db_set("status", "Completed")
+		self.db_set('status', 'Ready')
 
 		# Updating stock ledger should always be called after updating prevdoc status,
 		# because updating ordered qty, reserved_qty_for_subcontract in bin
