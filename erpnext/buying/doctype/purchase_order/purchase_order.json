@@ -371,10 +371,10 @@
      {
       "fieldname": "contact_email",
       "fieldtype": "Small Text",
+      "hidden": 1,
       "label": "Contact Email",
       "options": "Email",
-      "print_hide": 1,
-      "read_only": 1
+      "print_hide": 1
      },
      {
       "fieldname": "col_break_address",
@@ -896,7 +896,8 @@
       "fieldname": "payment_terms_template",
       "fieldtype": "Link",
       "label": "Payment Terms Template",
-      "options": "Payment Terms Template"
+      "options": "Payment Terms Template",
+      "read_only": 1
      },
      {
       "fieldname": "payment_schedule",
@@ -1244,7 +1245,7 @@
     "idx": 105,
     "is_submittable": 1,
     "links": [],
-    "modified": "2022-07-22 05:15:17.918730",
+    "modified": "2022-09-20 01:23:07.743984",
     "modified_by": "Administrator",
     "module": "Buying",
     "name": "Purchase Order",
