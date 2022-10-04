@@ -1189,3 +1189,16 @@ def get_item_account_wise_additional_cost(purchase_document):
 
 def on_doctype_update():
 	frappe.db.add_index("Purchase Receipt", ["supplier", "is_return", "return_against"])
+
+
+@frappe.whitelist()
+def customer_order_sni_item(item_code,name, item_name,qty,batch_number,manufacturing_date,expiry_date):
+	exists = False
+	co = frappe.get_doc("Purchase Order", name)
+	if (exists == False):
+		for item in co.get("items"):
+			if (item.item_code == item_code):
+				item.batch_number = batch_number,
+				item.manufacturing_date=manufacturing_date,
+				item.expiry_date=expiry_date,
+	co.save()
