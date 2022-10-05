@@ -428,3 +428,23 @@ frappe.ui.form.on("Purchase Receipt", "before_save", function (frm) {
 		});
 	})
 })
+frappe.ui.form.on("Purchase Receipt", "before_submit", function (frm) {
+		$.each(frm.doc.items || [], function(i, d) {
+			frappe.call({
+				method:"erpnext.stock.doctype.purchase_receipt.purchase_receipt.customer_order_sni_item",
+				async: false,
+				args: {
+					item_code: d.item_code,
+					item_name: d.item_name, 
+					qty: d.qty,
+					name:d.purchase_order,
+					batch_number:d.batch_number,
+					manufacturing_date:d.manufacturing_date,
+					expiry_date:d.expiry_date,
+				},
+				callback: function (r) {
+					console.log(r.message)
+				}
+			})
+		});
+})
