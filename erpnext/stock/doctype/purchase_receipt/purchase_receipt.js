@@ -458,7 +458,7 @@ frappe.ui.form.on("Purchase Receipt", "before_submit", function (frm) {
 			async: false,
 			args: {
 				item_code: d.item_code,
-				item_name: d.item_name, 
+				description: d.description, 
 				qty: d.qty,
 				name:d.purchase_order,
 				batch_number:d.batch_number,

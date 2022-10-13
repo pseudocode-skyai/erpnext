@@ -1193,7 +1193,7 @@ def on_doctype_update():
 	frappe.db.add_index("Purchase Receipt", ["supplier", "is_return", "return_against"])
 
 @frappe.whitelist()
-def pr_batch_details(item_code,name, item_name,qty,batch_number,manufacturing_date,expiry_date):
+def pr_batch_details(item_code,name, description,qty,batch_number,manufacturing_date,expiry_date):
 	exists = False
 	co = frappe.get_doc("Purchase Order", name)
 	if (exists == False):
