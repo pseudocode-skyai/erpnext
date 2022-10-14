@@ -411,7 +411,6 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 	for fieldname in ("item_name", "item_group", "brand", "stock_uom"):
 		out[fieldname] = item.get(fieldname)
 
-
 	if args.get("manufacturer"):
 		part_no = get_item_manufacturer_part_no(args.get("item_code"), args.get("manufacturer"))
 		if part_no:
