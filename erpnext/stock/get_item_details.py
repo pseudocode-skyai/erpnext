@@ -323,7 +323,7 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 	out = frappe._dict(
 		{
 			"item_code": item.name,
-			# "item_name": item.item_name,
+			"item_name": item.item_name,
 			"description": cstr(item.description).strip(),
 			"image": cstr(item.image).strip(),
 			"warehouse": warehouse,
@@ -408,15 +408,10 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 		if not out[d[1]]:
 			out[d[1]] = frappe.get_cached_value("Company", args.company, d[2]) if d[2] else None
 
-#In child table Show item code and description together 
-	# for fieldname in ("item_name", "item_group", "brand", "stock_uom"):
-	# 	out[fieldname] = item.get(fieldname)
+	for fieldname in ("item_name", "item_group", "brand", "stock_uom"):
+		out[fieldname] = item.get(fieldname)
 
-#In child table Show diff column  item code and description
-	for fieldname in ("item_group", "brand", "stock_uom"):
-		out[fieldname] = item.get(fieldname)
-		out[fieldname] = item.get(fieldname)
-		
+
 	if args.get("manufacturer"):
 		part_no = get_item_manufacturer_part_no(args.get("item_code"), args.get("manufacturer"))
 		if part_no:
@@ -1242,7 +1237,7 @@ def apply_price_list(args, as_doc=False):
 	        args = {
 	                "doctype": "",
 	                "name": "",
-	                "items": [{"doctype": "", "name": "", "item_code": "", "brand": "", "item_group": ""}, ...],
+	                "item": [{"doctype": "", "name": "", "item_code": "", "brand": "", "item_group": ""}, ...],
 	                "conversion_rate": 1.0,
 	                "selling_price_list": None,
 	                "price_list_currency": None,

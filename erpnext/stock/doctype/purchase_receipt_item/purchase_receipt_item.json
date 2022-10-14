@@ -11,6 +11,7 @@
       "barcode",
       "section_break_3",
       "item_code",
+      "item_name",
       "pack_size",
       "batch_no",
       "batch_number",
@@ -20,7 +21,6 @@
       "expiry_date",
       "product_bundle",
       "supplier_part_no",
-      "item_name",
       "section_break_4",
       "description",
       "brand",
@@ -163,10 +163,11 @@
            "hidden": 1
         },
         {
+           "columns": 1,
            "fieldname": "item_name",
            "fieldtype": "Data",
-           "in_global_search": 1,
-           "label": "Item Name",
+           "in_list_view": 1,
+           "label": "Product Name",
            "oldfieldname": "item_name",
            "oldfieldtype": "Data",
            "print_hide": 1
@@ -179,10 +180,9 @@
            "label": "Description"
         },
         {
-           "columns": 2,
            "fieldname": "description",
            "fieldtype": "Text Editor",
-           "label": "Product Name",
+           "label": "Description",
            "oldfieldname": "description",
            "oldfieldtype": "Text",
            "print_width": "300px",
@@ -1074,7 +1074,7 @@
     "idx": 1,
     "istable": 1,
     "links": [],
-    "modified": "2022-10-13 04:30:31.617531",
+    "modified": "2022-10-14 00:42:41.261346",
     "modified_by": "Administrator",
     "module": "Stock",
     "name": "Purchase Receipt Item",
