@@ -324,6 +324,9 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 		{
 			"item_code": item.name,
 			"item_name": item.item_name,
+			"pack_size": item.pack_size,
+			"product_label": item.product_label,
+			"shipper_size": item.shipper_size,
 			"description": cstr(item.description).strip(),
 			"image": cstr(item.image).strip(),
 			"warehouse": warehouse,

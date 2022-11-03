@@ -704,11 +704,25 @@ frappe.ui.form.on("Purchase Order", "is_subcontracted", function(frm) {
 		erpnext.buying.get_default_bom(frm);
 	}
 });
+//this code need remove because in base file already fetch product label
 // Fetch Label Field dependas on Item Code
-frappe.ui.form.on("Purchase Order Item", "item_code", function (frm, cdt, cdn) {
-    var d = locals[cdt][cdn];
-    frappe.db.get_value("Item", { "item_code": d.item_code}, "product_label", function (value){
-        frappe.model.set_value(d.doctype, d.name, "product_label", value.product_label)
-        refresh_field('product_label')
-    })
-});
+// frappe.ui.form.on("Purchase Order Item", "item_code", function (frm, cdt, cdn) {
+//     var d = locals[cdt][cdn];
+//     frappe.db.get_value("Item", { "item_code": d.item_code}, "product_label", function (value){
+//         frappe.model.set_value(d.doctype, d.name, "product_label", value.product_label)
+//         refresh_field('product_label')
+//     })
+// });
+
+//Remove empty row on save [if we using add multiple button ]
+frappe.ui.form.on("Purchase Order", "validate", function (frm,i) {
+	var tbl = cur_frm.doc.items;
+	for(var i = 0; i < tbl.length; i++)
+	{	
+		if(tbl[i].item_code === ""|| tbl[i].item_code === null || tbl[i].item_code === undefined)
+		{	
+			frm.get_field("items").grid.grid_rows[i].remove();
+		}
+	}
+	cur_frm.refresh();
+})
