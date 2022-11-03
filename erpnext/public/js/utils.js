@@ -741,7 +741,7 @@ erpnext.utils.map_current_doc = function(opts) {
 	}
 }
 
-frappe.form.link_formatters['Item'] = function(value, doc) {
+/* frappe.form.link_formatters['Item'] = function(value, doc) {
 	if (doc && value && doc.item_name && doc.item_name !== value && doc.item_code === value) {
 		return value + ': ' + doc.item_name;
 	} else if (!value && doc.doctype && doc.item_name) {
@@ -751,7 +751,7 @@ frappe.form.link_formatters['Item'] = function(value, doc) {
 		// if value is blank in report view or item code and name are the same, return as is
 		return value;
 	}
-}
+} */
 
 frappe.form.link_formatters['Employee'] = function(value, doc) {
 	if (doc && value && doc.employee_name && doc.employee_name !== value && doc.employee === value) {
