@@ -8,12 +8,25 @@ from frappe.contacts.address_and_contact import load_address_and_contact
 from frappe.email.inbox import link_communication_to_document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import comma_and, cstr, getdate, has_gravatar, nowdate, validate_email_address
+from frappe.core.doctype.user.user import share_doc_with_approver
 
 from erpnext.accounts.party import set_taxes
 from erpnext.controllers.selling_controller import SellingController
 
 
 class Lead(SellingController):
+	def before_save(self):
+		if self.lead_transfer != None:
+			if frappe.db.exists ({"doctype": "Event", "subject": self.lead_name}):
+				pass
+			else:
+					lead_event= frappe.new_doc("Event")
+					lead_event.subject = self.lead_name
+					lead_event.start_on = self.date
+					lead_event.sender = self.lead_transfer
+					lead_event.status = "Lead Transfer"
+					lead_event.insert(ignore_mandatory=True)
+					
 	def get_feed(self):
 		return "{0}: {1}".format(_(self.status), self.lead_name)
 
@@ -25,13 +38,13 @@ class Lead(SellingController):
 	def before_insert(self):
 		if self.address_title and self.address_type:
 			self.address_doc = self.create_address()
-		self.contact_doc = self.create_contact()
+		# self.contact_doc = self.create_contact()
 
 	def after_insert(self):
 		self.update_links()
 
 	def validate(self):
-		self.set_lead_name()
+		# self.set_lead_name()
 		self.set_title()
 		self.set_status()
 		self.check_email_id_is_unique()
@@ -119,15 +132,15 @@ class Lead(SellingController):
 			"Quotation", {"party_name": self.name, "docstatus": 1, "status": "Lost"}
 		)
 
-	def set_lead_name(self):
-		if not self.lead_name:
-			# Check for leads being created through data import
-			if not self.company_name and not self.email_id and not self.flags.ignore_mandatory:
-				frappe.throw(_("A Lead requires either a person's name or an organization's name"))
-			elif self.company_name:
-				self.lead_name = self.company_name
-			else:
-				self.lead_name = self.email_id.split("@")[0]
+	# def set_lead_name(self):
+	# 	if not self.lead_name:
+	# 		# Check for leads being created through data import
+	# 		if not self.company_name and not self.email_id and not self.flags.ignore_mandatory:
+	# 			frappe.throw(_("A Lead requires either a person's name or an organization's name"))
+	# 		elif self.company_name:
+	# 			self.lead_name = self.company_name
+	# 		else:
+	# 			self.lead_name = self.email_id.split("@")[0]
 
 	def set_title(self):
 		if self.organization_lead:
@@ -159,9 +172,9 @@ class Lead(SellingController):
 
 		return address
 
-	def create_contact(self):
-		if not self.lead_name:
-			self.set_lead_name()
+	# def create_contact(self):
+	# 	if not self.lead_name:
+	# 		self.set_lead_name()
 
 		names = self.lead_name.strip().split(" ")
 		if len(names) > 1:
@@ -202,14 +215,14 @@ class Lead(SellingController):
 				"links", {"link_doctype": "Lead", "link_name": self.name, "link_title": self.lead_name}
 			)
 			self.address_doc.save()
-
-		# update contact links
+""" 
+		update contact links
 		if self.contact_doc:
 			self.contact_doc.append(
 				"links", {"link_doctype": "Lead", "link_name": self.name, "link_title": self.lead_name}
 			)
 			self.contact_doc.save()
-
+ """
 
 @frappe.whitelist()
 def make_customer(source_name, target_doc=None):
@@ -420,3 +433,30 @@ def daily_open_lead():
 	leads = frappe.get_all("Lead", filters=[["contact_date", "Between", [nowdate(), nowdate()]]])
 	for lead in leads:
 		frappe.db.set_value("Lead", lead.name, "status", "Open")
+
+
+@frappe.whitelist()
+def user_created(name,user_created_by,lead_transfer):
+	doc2 = frappe.get_doc("Lead",name)
+	share_doc_with_approver(doc2, user_created_by)
+	share_doc_with_approver(doc2, lead_transfer)
+
+
+@frappe.whitelist()
+def get_customer_name_details(customer_name):
+	customer= frappe.get_doc("Customer",customer_name)
+	person_data = []
+	for person in customer.get("customer_contact_person_details"):
+		person_data.append(person.person_name)
+	return person_data	
+ 
+@frappe.whitelist()
+def contact_person(**args):
+	contact_person_detail = frappe.new_doc("Customer Contact Person")
+	contact_person_detail.customer_name = args.get('customer_name')
+	contact_person_detail.person_name = args.get('person_name')
+	contact_person_detail.designation = args.get('designation')
+	contact_person_detail.department = args.get('department')
+	contact_person_detail.primary_mobile_number = args.get('primary_mobile_number')
+	contact_person_detail.primary_email_id = args.get('primary_email_id')
+	contact_person_detail.insert(ignore_mandatory=True, ignore_permissions = True)
