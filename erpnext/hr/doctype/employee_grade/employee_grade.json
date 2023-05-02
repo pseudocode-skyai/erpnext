@@ -62,18 +62,18 @@
   {
    "fieldname": "section_break_3",
    "fieldtype": "Section Break",
-   "label": "Travel Type Allowed"
+   "label": "Modes Allowed"
   },
   {
    "fieldname": "employee_travel_expense_section",
    "fieldtype": "Section Break",
-   "label": "Employee Travel Expenses"
+   "label": "Allowed Expense Limit"
   }
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-05-01 18:57:46.614490",
+ "modified": "2023-05-02 11:36:24.694366",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Grade",

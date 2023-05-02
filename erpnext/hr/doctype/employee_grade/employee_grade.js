@@ -25,5 +25,35 @@ frappe.ui.form.on('Employee Grade', {
         }
         
         
-    }
+    },
+
 })
+
+
+frappe.ui.form.on('Employee Travel Expense Limit Table', {
+
+
+   hotel:function(frm, cdt, cdn){
+    var row = locals[cdt][cdn];
+    frappe.model.set_value(cdt, cdn, 'total',row.hotel + row.food +row.other);
+    refresh_field('total');
+   },
+   food: function(_frm, cdt, cdn) {
+    var row = locals[cdt][cdn];
+    frappe.model.set_value(cdt, cdn, 'total',row.hotel + row.food +row.other);
+    refresh_field('total');
+   }, 
+   other: function(frm, cdt, cdn) {
+    var row = locals[cdt][cdn];
+    frappe.model.set_value(cdt, cdn, 'total',row.hotel + row.food +row.other);
+    refresh_field('total');
+   }, 
+
+
+    
+  
+
+})
+
+
+
