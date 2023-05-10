@@ -27,15 +27,42 @@ frappe.query_reports["Lead Report"] = {
 			"reqd": 1
 		},
 		{
+			"fieldname":"designation",
+			"label": __("Designation"),
+			"fieldtype": "Link",
+			"options": "Designation",
+		},
+		{
+			"fieldname":"department",
+			"label": __("Department"),
+			"fieldtype": "Link",
+			"options": "Person Department",
+		},
+		{
 			"fieldname":"status",
 			"label": __("Status"),
 			"fieldtype": "Select",
 			options: [
+				"",
 				{ "value": "Open", "label": __("Open") },
 				{ "value": "Contacted", "label": __("Contacted") },
 				{ "value": "Success", "label": __("Success") },
 				{ "value": "Close", "label": __("Close") },
 			],
-		}
+		},
+		{
+			"fieldname":"sub_status",
+			"label": __("Sub Status"),
+			"fieldtype": "Select",
+			options: [
+				"",
+				{ "value": "On Call Discussion", "label": __("On Call Discussion") },
+				{ "value": "Technical Visit", "label": __("Technical Visit") },
+				{ "value": "Quotation", "label": __("Quotation") },
+				{ "value": "Follow Up", "label": __("Follow Up") },
+				{ "value": "Budgetary  Discussion", "label": __("Budgetary  Discussion") },
+				{ "value": "Negotiation", "label": __("Negotiation") },
+			],
+		},
 	]
 };
