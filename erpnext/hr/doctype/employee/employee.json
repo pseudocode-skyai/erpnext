@@ -2,8 +2,6 @@
  "actions": [],
  "allow_events_in_timeline": 1,
  "allow_import": 1,
- "allow_rename": 1,
- "autoname": "naming_series:",
  "creation": "2013-03-07 09:04:18",
  "doctype": "DocType",
  "document_type": "Setup",
@@ -12,28 +10,35 @@
  "field_order": [
   "basic_information",
   "employee",
-  "naming_series",
-  "first_name",
-  "middle_name",
-  "last_name",
-  "salutation",
   "employee_name",
+  "employee_code",
+  "salutation",
   "employment_type",
   "image",
-  "column_break1",
-  "company",
+  "employee_deparment",
   "status",
-  "gender",
+  "column_break1",
+  "employee_grade",
+  "employee_vertical",
   "date_of_birth",
+  "company",
+  "gender",
   "date_of_joining",
   "employee_number",
+  "section_break_18",
+  "expense_approver",
+  "column_break_20",
+  "travel_expense_checking_officer",
+  "hod_details_section",
+  "hod_name",
+  "column_break_23",
+  "hod_mobile_no",
   "emergency_contact_details",
   "person_to_be_contacted",
   "relation",
   "column_break_19",
   "emergency_phone_number",
   "erpnext_user",
-  "user_id",
   "create_user",
   "create_user_permission",
   "employment_details",
@@ -52,7 +57,6 @@
   "grade",
   "branch",
   "approvers_section",
-  "expense_approver",
   "leave_approver",
   "column_break_45",
   "shift_request_approver",
@@ -72,8 +76,9 @@
   "health_insurance_no",
   "contact_details",
   "cell_number",
-  "prefered_email",
   "personal_email",
+  "user_id",
+  "prefered_email",
   "unsubscribed",
   "permanent_accommodation_type",
   "permanent_address",
@@ -81,19 +86,31 @@
   "prefered_contact_email",
   "company_email",
   "current_accommodation_type",
-  "current_address",
+  "alternate_mobile_number",
+  "current_address_same_as_permanent_address",
+  "employee_current_address",
   "sb53",
   "bio",
   "personal_details",
+  "pan_number",
+  "aadhar_number",
+  "driving_license_number",
+  "esic_number",
+  "column_break_87",
+  "attach_pan",
+  "attach_aadhar",
+  "attach_driving_license",
+  "pf_number",
   "passport_number",
   "date_of_issue",
   "valid_upto",
   "place_of_issue",
   "marital_status",
   "blood_group",
-  "column_break6",
   "family_background",
   "health_details",
+  "insurance_policy_section",
+  "column_break_101",
   "educational_qualification",
   "education",
   "previous_work_experience",
@@ -112,7 +129,13 @@
   "feedback",
   "lft",
   "rgt",
-  "old_parent"
+  "old_parent",
+  "section_break_123",
+  "accidental_insurance",
+  "medical_insurance",
+  "column_break_126",
+  "attach_medical_insurance",
+  "attach_accidental_insurance"
  ],
  "fields": [
   {
@@ -130,51 +153,22 @@
    "report_hide": 1
   },
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series",
-   "no_copy": 1,
-   "oldfieldname": "naming_series",
-   "oldfieldtype": "Select",
-   "options": "HR-EMP-",
-   "set_only_once": 1
-  },
-  {
    "fieldname": "salutation",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Salutation",
    "oldfieldname": "salutation",
    "oldfieldtype": "Select",
    "options": "Salutation"
   },
   {
-   "fieldname": "first_name",
-   "fieldtype": "Data",
-   "label": "First Name",
-   "reqd": 1
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "middle_name",
-   "fieldtype": "Data",
-   "label": "Middle Name"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "last_name",
-   "fieldtype": "Data",
-   "label": "Last Name"
-  },
-  {
+   "fetch_from": "User.full_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
-   "in_global_search": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Full Name",
+   "label": "Employee name",
    "oldfieldname": "employee_name",
    "oldfieldtype": "Data",
-   "read_only": 1
+   "reqd": 1
   },
   {
    "fetch_from": "user_id.user_image",
@@ -194,11 +188,11 @@
   {
    "fieldname": "company",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Company",
    "options": "Company",
    "print_hide": 1,
-   "remember_last_selected_value": 1,
-   "reqd": 1
+   "remember_last_selected_value": 1
   },
   {
    "default": "Active",
@@ -207,21 +201,21 @@
    "label": "Status",
    "oldfieldname": "status",
    "oldfieldtype": "Select",
-   "options": "Active\nInactive\nSuspended\nLeft",
-   "reqd": 1,
-   "search_index": 1
+   "options": "Active\nInactive\nSuspended\nLeft"
   },
   {
    "fieldname": "employee_number",
    "fieldtype": "Data",
+   "hidden": 1,
    "in_global_search": 1,
-   "label": "Employee Number",
+   "label": "Employee Code",
    "oldfieldname": "employee_number",
    "oldfieldtype": "Data"
   },
   {
    "fieldname": "employment_type",
    "fieldtype": "Link",
+   "hidden": 1,
    "ignore_user_permissions": 1,
    "label": "Employment Type",
    "oldfieldname": "employment_type",
@@ -231,16 +225,16 @@
   {
    "fieldname": "gender",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Gender",
    "oldfieldname": "gender",
    "oldfieldtype": "Select",
-   "options": "Gender",
-   "reqd": 1
+   "options": "Gender"
   },
   {
    "fieldname": "date_of_birth",
    "fieldtype": "Date",
-   "label": "Date of Birth",
+   "label": "Date of Birth(dd-mm-yyyy)",
    "oldfieldname": "date_of_birth",
    "oldfieldtype": "Date",
    "reqd": 1
@@ -248,15 +242,16 @@
   {
    "fieldname": "date_of_joining",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Date of Joining",
    "oldfieldname": "date_of_joining",
-   "oldfieldtype": "Date",
-   "reqd": 1
+   "oldfieldtype": "Date"
   },
   {
    "allow_in_quick_entry": 1,
    "fieldname": "emergency_contact_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Emergency Contact"
   },
   {
@@ -281,6 +276,7 @@
    "collapsible": 1,
    "fieldname": "erpnext_user",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "ERPNext User"
   },
   {
@@ -310,6 +306,7 @@
    "collapsible": 1,
    "fieldname": "employment_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Joining Details"
   },
   {
@@ -361,12 +358,12 @@
    "collapsible": 1,
    "fieldname": "job_profile",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Department and Grade"
   },
   {
    "fieldname": "department",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Department",
    "oldfieldname": "department",
    "oldfieldtype": "Link",
@@ -424,6 +421,7 @@
    "collapsible": 1,
    "fieldname": "salary_information",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Salary Details",
    "oldfieldtype": "Section Break",
    "width": "50%"
@@ -456,6 +454,7 @@
    "collapsible": 1,
    "fieldname": "health_insurance_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Health Insurance"
   },
   {
@@ -480,17 +479,20 @@
    "fieldname": "cell_number",
    "fieldtype": "Data",
    "label": "Mobile",
-   "options": "Phone"
+   "options": "Phone",
+   "reqd": 1
   },
   {
    "fieldname": "prefered_contact_email",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Prefered Contact Email",
    "options": "\nCompany Email\nPersonal Email\nUser ID"
   },
   {
    "fieldname": "prefered_email",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Prefered Email",
    "options": "Email",
    "read_only": 1
@@ -499,6 +501,7 @@
    "description": "Provide Email Address registered in company",
    "fieldname": "company_email",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Company Email",
    "oldfieldname": "company_email",
    "oldfieldtype": "Data",
@@ -507,13 +510,15 @@
   {
    "fieldname": "personal_email",
    "fieldtype": "Data",
-   "label": "Personal Email",
-   "options": "Email"
+   "label": "Mail ID",
+   "options": "Email",
+   "reqd": 1
   },
   {
    "default": "0",
    "fieldname": "unsubscribed",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Unsubscribed"
   },
   {
@@ -524,29 +529,27 @@
   {
    "fieldname": "permanent_accommodation_type",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Permanent Address Is",
    "options": "\nRented\nOwned"
   },
   {
    "fieldname": "permanent_address",
    "fieldtype": "Small Text",
-   "label": "Permanent Address"
+   "label": "Employee Permanent Address"
   },
   {
    "fieldname": "current_accommodation_type",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Current Address Is",
    "options": "\nRented\nOwned"
-  },
-  {
-   "fieldname": "current_address",
-   "fieldtype": "Small Text",
-   "label": "Current Address"
   },
   {
    "collapsible": 1,
    "fieldname": "sb53",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Personal Bio"
   },
   {
@@ -564,37 +567,38 @@
   {
    "fieldname": "passport_number",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Passport Number"
   },
   {
    "fieldname": "date_of_issue",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Date of Issue"
   },
   {
    "fieldname": "valid_upto",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Valid Upto"
   },
   {
    "fieldname": "place_of_issue",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Place of Issue"
-  },
-  {
-   "fieldname": "column_break6",
-   "fieldtype": "Column Break",
-   "width": "50%"
   },
   {
    "fieldname": "marital_status",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Marital Status",
    "options": "\nSingle\nMarried\nDivorced\nWidowed"
   },
   {
    "fieldname": "blood_group",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Blood Group",
    "options": "\nA+\nA-\nB+\nB-\nAB+\nAB-\nO+\nO-"
   },
@@ -602,18 +606,21 @@
    "description": "Here you can maintain family details like name and occupation of parent, spouse and children",
    "fieldname": "family_background",
    "fieldtype": "Small Text",
+   "hidden": 1,
    "label": "Family Background"
   },
   {
    "description": "Here you can maintain height, weight, allergies, medical concerns etc",
    "fieldname": "health_details",
    "fieldtype": "Small Text",
+   "hidden": 1,
    "label": "Health Details"
   },
   {
    "collapsible": 1,
    "fieldname": "educational_qualification",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Educational Qualification"
   },
   {
@@ -626,6 +633,7 @@
    "collapsible": 1,
    "fieldname": "previous_work_experience",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Previous Work Experience",
    "options": "Simple"
   },
@@ -639,6 +647,7 @@
    "collapsible": 1,
    "fieldname": "history_in_company",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "History In Company",
    "options": "Simple"
   },
@@ -652,6 +661,7 @@
    "collapsible": 1,
    "fieldname": "exit",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Exit",
    "oldfieldtype": "Section Break"
   },
@@ -753,6 +763,7 @@
    "collapsible": 1,
    "fieldname": "attendance_and_leave_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Attendance and Leave Details"
   },
   {
@@ -790,12 +801,14 @@
   {
    "fieldname": "expense_approver",
    "fieldtype": "Link",
-   "label": "Expense Approver",
-   "options": "User"
+   "label": "Travel Expense Approving Officer",
+   "options": "User",
+   "reqd": 1
   },
   {
    "fieldname": "approvers_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Approvers"
   },
   {
@@ -807,17 +820,183 @@
    "fieldtype": "Link",
    "label": "Shift Request Approver",
    "options": "User"
+  },
+  {
+   "fieldname": "employee_deparment",
+   "fieldtype": "Table MultiSelect",
+   "label": "Employee Deparment",
+   "options": "Employee Department Table"
+  },
+  {
+   "fieldname": "employee_code",
+   "fieldtype": "Data",
+   "label": "Employee ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee_grade",
+   "fieldtype": "Link",
+   "label": "Employee Grade",
+   "options": "Employee Grade",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee_vertical",
+   "fieldtype": "Table MultiSelect",
+   "label": "Employee Vertical",
+   "options": "Employee Vertical"
+  },
+  {
+   "bold": 1,
+   "collapsible": 1,
+   "fieldname": "hod_details_section",
+   "fieldtype": "Section Break",
+   "label": "HOD Details"
+  },
+  {
+   "fieldname": "hod_name",
+   "fieldtype": "Data",
+   "label": "HOD Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_23",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hod_mobile_no",
+   "fieldtype": "Data",
+   "label": "HOD Mobile No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "aadhar_number",
+   "fieldtype": "Int",
+   "label": "Aadhar number"
+  },
+  {
+   "fieldname": "esic_number",
+   "fieldtype": "Data",
+   "label": "ESIC Number"
+  },
+  {
+   "fieldname": "pf_number",
+   "fieldtype": "Data",
+   "label": "P.F. Number"
+  },
+  {
+   "fieldname": "column_break_87",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "attach_pan",
+   "fieldtype": "Attach",
+   "label": "Attach PAN"
+  },
+  {
+   "fieldname": "attach_aadhar",
+   "fieldtype": "Attach",
+   "label": "Attach Aadhar"
+  },
+  {
+   "fieldname": "attach_driving_license",
+   "fieldtype": "Attach",
+   "label": "Attach Driving License"
+  },
+  {
+   "bold": 1,
+   "collapsible": 1,
+   "fieldname": "insurance_policy_section",
+   "fieldtype": "Section Break",
+   "label": "Insurance Policy"
+  },
+  {
+   "fieldname": "column_break_101",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "current_address_same_as_permanent_address",
+   "fieldtype": "Check",
+   "label": "Current Address same as Permanent Address"
+  },
+  {
+   "fieldname": "alternate_mobile_number",
+   "fieldtype": "Date",
+   "label": "Alternate Mobile Number",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "driving_license_number",
+   "fieldtype": "Data",
+   "label": "Driving License Number"
+  },
+  {
+   "fieldname": "travel_expense_checking_officer",
+   "fieldtype": "Link",
+   "label": "Travel Expense Checking Officer",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee_current_address",
+   "fieldtype": "Small Text",
+   "label": "Employee Current Address",
+   "read_only_depends_on": "eval:doc.current_address_same_as_permanent_address === 1"
+  },
+  {
+   "fieldname": "pan_number",
+   "fieldtype": "Data",
+   "label": "PAN Number"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_123",
+   "fieldtype": "Section Break",
+   "label": "Policy Section"
+  },
+  {
+   "fieldname": "accidental_insurance",
+   "fieldtype": "Data",
+   "label": "Accidental Insurance "
+  },
+  {
+   "fieldname": "medical_insurance",
+   "fieldtype": "Data",
+   "label": "Medical Insurance "
+  },
+  {
+   "fieldname": "column_break_126",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "attach_medical_insurance",
+   "fieldtype": "Attach",
+   "label": "Attach Medical Insurance "
+  },
+  {
+   "fieldname": "attach_accidental_insurance",
+   "fieldtype": "Attach",
+   "label": "Attach Accidental Insurance"
   }
  ],
+ "hide_toolbar": 1,
  "icon": "fa fa-user",
  "idx": 24,
  "image_field": "image",
  "links": [],
- "modified": "2021-06-17 11:31:37.730760",
+ "modified": "2023-05-24 18:52:15.116404",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee",
- "name_case": "Title Case",
  "owner": "Administrator",
  "permissions": [
   {
@@ -859,5 +1038,6 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "title_field": "employee_name"
+ "title_field": "employee_name",
+ "track_changes": 1
 }
