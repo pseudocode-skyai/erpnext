@@ -43,6 +43,27 @@ erpnext.hr.EmployeeController = frappe.ui.form.Controller.extend({
 
 });
 frappe.ui.form.on('Employee', {
+	expense_approver: function(frm) {
+		if (frm.doc.expense_approver) {
+			frappe.call({
+				"method": "erpnext.hr.doctype.employee.employee.get_employee_data",
+				args: {
+					expense_approver: frm.doc.expense_approver
+				},
+				callback: function(response){
+					if (response.message != "None")
+					{
+						frm.set_value('hod_name', response.message.employee_name);
+						frm.set_value('hod_mobile_no', response.message.cell_number);
+					}
+					else{
+						frm.set_value('expense_approver', null);
+					}
+
+				}
+			})
+		}
+    },
 	setup: function (frm) {
 		frm.set_query("leave_policy", function() {
 			return {
@@ -51,6 +72,20 @@ frappe.ui.form.on('Employee', {
 				}
 			};
 		});
+	},
+	setup:function(frm){
+		frm.set_query('travel_expense_checking_officer', function(doc) {
+			return {
+				filters: {
+					"designation": "Accountant",
+					"user": doc.user
+				}
+			};
+		});
+	},
+	refresh: function(frm) {
+		frm.dashboard.links_area.hide();
+		frm.dashboard.heatmap_area.hide();
 	},
 	onload: function (frm) {
 		frm.set_query("department", function() {
@@ -107,7 +142,18 @@ frappe.ui.form.on('Employee', {
 				frm.set_value("user_id", r.message);
 			}
 		});
-	}
+	},
+	// permanent address copy to current address
+	current_address_same_as_permanent_address: function(frm) {
+        if (frm.doc.current_address_same_as_permanent_address && frm.doc.permanent_address) {
+            frm.set_value('employee_current_address', frm.doc.permanent_address);
+        }
+    },
+	permanent_address:function(frm) {
+		if (frm.doc.current_address_same_as_permanent_address) {
+            frm.set_value('employee_current_address', frm.doc.permanent_address); // Update employee_current_address
+        }
+    }
 });
 
 cur_frm.cscript = new erpnext.hr.EmployeeController({
@@ -116,11 +162,11 @@ cur_frm.cscript = new erpnext.hr.EmployeeController({
 
 
 frappe.tour['Employee'] = [
-	{
-		fieldname: "first_name",
-		title: "First Name",
-		description: __("Enter First and Last name of Employee, based on Which Full Name will be updated. IN transactions, it will be Full Name which will be fetched.")
-	},
+	// {
+	// 	fieldname: "first_name",
+	// 	title: "First Name",
+	// 	description: __("Enter First and Last name of Employee, based on Which Full Name will be updated. IN transactions, it will be Full Name which will be fetched.")
+	// },
 	{
 		fieldname: "company",
 		title: "Company",

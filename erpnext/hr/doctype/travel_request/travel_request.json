@@ -1,20 +1,36 @@
 {
  "actions": [],
- "autoname": "HR-TRQ-.YYYY.-.#####",
  "creation": "2018-05-15 06:32:33.950356",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "travel_type",
+  "status",
   "travel_funding",
   "travel_proof",
-  "column_break_2",
-  "purpose_of_travel",
-  "details_of_sponsor",
-  "employee_details",
   "employee",
   "employee_name",
+  "employee_grade",
+  "requition_no",
+  "column_break_2",
+  "date",
+  "team",
+  "designation",
+  "loaction",
+  "advance_required",
+  "purpose_of_travel",
+  "details_of_sponsor",
+  "section_break_7",
+  "travel_requisition",
+  "requisition_program",
+  "approved_by_hod_section",
+  "remark",
+  "section_break_24",
+  "approving_officer",
+  "column_break_22",
+  "prepared_by",
+  "employee_details",
   "cell_number",
   "prefered_email",
   "column_break_7",
@@ -39,72 +55,187 @@
  ],
  "fields": [
   {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "__user",
+   "fieldname": "prepared_by",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Prepared By",
+   "options": "User"
+  },
+  {
+   "fetch_from": "employee.employee_grade",
+   "fieldname": "employee_grade",
+   "fieldtype": "Link",
+   "label": " Employee Grade",
+   "options": "Employee Grade",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Travel Request",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "\nDraft\nApproved\nTo Be Approved"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark",
+   "read_only_depends_on": "eval:!frappe.user.has_role('Approval Role')"
+  },
+  {
    "fieldname": "travel_type",
    "fieldtype": "Select",
-   "in_list_view": 1,
+   "hidden": 1,
    "label": "Travel Type",
-   "options": "\nDomestic\nInternational",
-   "reqd": 1
+   "options": "\nDomestic\nInternational"
   },
   {
    "fieldname": "travel_funding",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Travel Funding",
    "options": "\nRequire Full Funding\nFully Sponsored\nPartially Sponsored, Require Partial Funding"
   },
   {
    "fieldname": "travel_proof",
    "fieldtype": "Attach",
+   "hidden": 1,
    "label": "Copy of Invitation/Announcement"
+  },
+  {
+   "fieldname": "requition_no",
+   "fieldtype": "Data",
+   "label": "Requition No",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee Name",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "loaction",
+   "fieldtype": "Data",
+   "label": "Loaction"
+  },
+  {
+   "fieldname": "advance_required",
+   "fieldtype": "Currency",
+   "label": "Advance Required",
+   "options": "Currency"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date",
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "column_break_2",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "purpose_of_travel",
+   "fieldname": "employee",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Purpose of Travel",
-   "options": "Purpose of Travel",
+   "in_standard_filter": 1,
+   "label": "Employee ID",
+   "options": "Employee",
    "reqd": 1
+  },
+  {
+   "fieldname": "team",
+   "fieldtype": "Data",
+   "label": "Team"
+  },
+  {
+   "fetch_from": "prepared_by.designation",
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "label": "Designation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purpose_of_travel",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Purpose of Travel",
+   "options": "Purpose of Travel"
   },
   {
    "fieldname": "details_of_sponsor",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Details of Sponsor (Name, Location)"
   },
   {
-   "collapsible": 1,
-   "fieldname": "section_break_4",
+   "fieldname": "section_break_7",
    "fieldtype": "Section Break",
-   "label": "Description"
+   "label": "Requisition Details"
   },
   {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Any other details"
+   "fieldname": "travel_requisition",
+   "fieldtype": "Table",
+   "label": "Travel Requisition",
+   "options": "Travel Requisition",
+   "reqd": 1
+  },
+  {
+   "fieldname": "requisition_program",
+   "fieldtype": "Table",
+   "label": "Requisition Program",
+   "options": "Requisition Program Table",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.status == \"Approved\"",
+   "fieldname": "approved_by_hod_section",
+   "fieldtype": "Section Break",
+   "label": "Approved By HOD"
+  },
+  {
+   "fieldname": "section_break_24",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "employee.expense_approver",
+   "fieldname": "approving_officer",
+   "fieldtype": "Link",
+   "label": "Approving Officer",
+   "options": "User",
+   "read_only": 1
   },
   {
    "collapsible": 1,
    "fieldname": "employee_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Employee Details"
-  },
-  {
-   "fieldname": "employee",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Employee",
-   "options": "Employee",
-   "reqd": 1
-  },
-  {
-   "fetch_from": "employee.employee_name",
-   "fieldname": "employee_name",
-   "fieldtype": "Data",
-   "label": "Employee Name",
-   "read_only": 1
   },
   {
    "fetch_from": "employee.cell_number",
@@ -147,8 +278,21 @@
    "label": "Passport Number"
   },
   {
+   "collapsible": 1,
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Any other details"
+  },
+  {
    "fieldname": "travel_itinerary",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Travel Itinerary"
   },
   {
@@ -159,13 +303,8 @@
   {
    "fieldname": "costing_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Costing Details"
-  },
-  {
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Cost Center",
-   "options": "Cost Center"
   },
   {
    "fieldname": "costings",
@@ -175,8 +314,26 @@
   },
   {
    "collapsible": 1,
+   "fieldname": "accounting_dimensions_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Accounting Dimensions"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "dimension_col_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
    "fieldname": "event_details",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Event Details"
   },
   {
@@ -193,30 +350,12 @@
    "fieldname": "other_details",
    "fieldtype": "Text",
    "label": "Other Details"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Travel Request",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "accounting_dimensions_section",
-   "fieldtype": "Section Break",
-   "label": "Accounting Dimensions"
-  },
-  {
-   "fieldname": "dimension_col_break",
-   "fieldtype": "Column Break"
   }
  ],
+ "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2019-12-12 18:42:26.451359",
+ "modified": "2023-05-19 15:35:47.920267",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",
