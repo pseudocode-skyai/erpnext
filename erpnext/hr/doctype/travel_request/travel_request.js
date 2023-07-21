@@ -3,19 +3,31 @@
 
 
 frappe.ui.form.on("Travel Request", {
+	to_date: function(frm) {
+		frappe.call({                        
+			method: "axis_india_app.travel_expense.doctype.outside_travel.outside_travel.get_doc", 
+			args: { 
+				travelling_start_date:frm.doc.from_date,
+				travelling_end_date:frm.doc.to_date,
+				grade:frm.doc.employee_grade
+				}
+		})
+	},
 	grade_details: function(frm) {
 		$.each(frm.doc.travel_requisition || [], function (i, row) {
 			frappe.call({
 				method: "erpnext.hr.doctype.travel_request.travel_request.get_grade_child_details",
 				async:false,
 				args: {grade:frm.doc.employee_grade,
-					mode: row.mode},
+					mode: row.mode,
+					travelling_start_date:frm.doc.from_date,
+					travelling_end_date:frm.doc.to_date
+				},
 				callback: function(r) {
 					var options = r.message
 					var field = frappe.meta.get_docfield("Travel Requisition","class", row.name);
 					field.options = [""].concat(options);
 					cur_frm.refresh_field("class");
-					cur_frm.reload();
 				}
 			})
 		})
@@ -27,12 +39,10 @@ frappe.ui.form.on("Travel Request", {
 	},
 	refresh: function (frm) {
 
-		if (frm.doc.status != "Draft" && frm.doc.status != "Approved" && frappe.session.user !== frm.doc.prepared_by) {
-			
-			frm.fields.forEach(function(field) {
-                frm.set_df_property(field.df.fieldname, 'read_only', 1);
-            });
-		}
+		if (frm.doc.status == "Reject") {
+			$('.primary-action').prop('disabled', true);
+			$('.primary-action').prop('hidden', true);		
+		}	
 		if (frm.doc.employee_grade){
 			frm.events.grade_details(frm);
 		}
@@ -42,35 +52,87 @@ frappe.ui.form.on("Travel Request", {
 			cur_frm.disable_save();
 		}
 		if (!frm.doc.__islocal) {
+			$('.primary-action').prop('disabled', true);
+			if (frm.doc.status != "Draft" && frm.doc.status != "Return") {
+			
+				frm.fields.forEach(function(field) {
+					frm.set_df_property(field.df.fieldname, 'read_only', 1);
+				});
+			}
 			if (frappe.session.user === frm.doc.prepared_by){
-				if (frm.doc.status === "Draft") {
+				if (frm.doc.status === "Draft" || frm.doc.status === "Return") {
 					cur_frm.add_custom_button(__('Approved Request'), () => cur_frm.events.approved_request(), __("Status"));
 				}
-				if (frm.doc.status == "To Be Approved") {
+				if (frm.doc.status == "To Be Check") {
 					cur_frm.disable_save();				
 				}				
 			}
 		}
-
-		if (frappe.session.user === frm.doc.approving_officer) {
-	
-			if (frm.doc.status == "To Be Approved" || frm.doc.status=== "Check"){
-				cur_frm.add_custom_button(__('Draft'), () => cur_frm.events.draft(), __("Status"));
+		if (frappe.session.user === cur_frm.doc.approved_by) {
+			if (frm.doc.status == "To Be Check" ){
+				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
+			}
+			if (frm.doc.status == "To Be Approved" || frm.doc.status == "To Be Check"){
+				cur_frm.add_custom_button(__('Return'), () => cur_frm.events.return(), __("Status"));
 			}
 			if (frm.doc.status=== "To Be Approved") {
-				if (doc.status != "Approved") {
+				if (frm.doc.status != "Approved") {
 					cur_frm.add_custom_button(__('Approved'), () => cur_frm.events.approved(), __("Status"));
 				}		
 			}
+			if (frm.doc.status=== "To Be Approved") {
+				{
+					cur_frm.add_custom_button(__('Reject'), () => cur_frm.events.reject(), __("Status"));
+				}		
+			}		
+		}
+		if (frappe.session.user === cur_frm.doc.checked_by) {
+			if (doc.status == "To Be Check" ){
+				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
+			}
 		}
 	},
-	draft: function(){
-		cur_frm.set_value("status","Draft");
+	checking: function(){
+		
+		let d = new frappe.ui.Dialog({
+			title: 'Remark',
+			fields: [
+				{
+					label: 'Remark',
+					fieldname: 'remark',
+					fieldtype: 'Small Text'
+				},
+			],
+			primary_action_label: 'Submit',
+			primary_action(values) {
+				if (cur_frm.doc.amount_bill != cur_frm.doc.grand_total)
+				{
+					frappe.throw(cur_frm.doc.grand_total +  " Grand Total "  + " and " + cur_frm.doc.amount_bill + " Amount Bill " + " Mismatch ");
+				}
+				cur_frm.set_value("status","To Be Approved");
+				cur_frm.set_value('check_remark', (values["remark"]));
+				cur_frm.refresh_field('check_remark');
+				d.hide();
+				cur_frm.save();
+				cur_frm.reload();	
+			}
+		});
+		d.show();
+	},
+	reject: function(){
+		cur_frm.set_value("status","Reject");
+		cur_frm.save();
+		setTimeout(function(){
+			window.location.reload(1);
+		}, 500);
+	},
+	return: function(){
+		cur_frm.set_value("status","Return");
 		cur_frm.save();
 	},
 	approved: function(){
 		let d = new frappe.ui.Dialog({
-			title: 'Approved By HOD',
+			title: 'Approved Expenses By HOD',
 			fields: [
 				{
 					label: 'Remark',
@@ -83,8 +145,9 @@ frappe.ui.form.on("Travel Request", {
 				d.hide();
 				cur_frm.set_value("status","Approved");
 				cur_frm.set_value('remark', (values["remark"]));
+				cur_frm.refresh_field('remark');
 				cur_frm.save();
-				cur_frm.reload();
+				cur_frm.reload();	
 			}
 		});
 		d.show();
@@ -95,10 +158,12 @@ frappe.ui.form.on("Travel Request", {
 			async:false,
 			args: { 
 					name:cur_frm.doc.name,
-					approving_officer : cur_frm.doc.approving_officer,				},	 
+					approving_officer : cur_frm.doc.approved_by,
+					checking_officer : cur_frm.doc.checked_by,
+				},	 
 		 });
-		 cur_frm.set_value("status","To Be Approved");
-		 cur_frm.save();
+		 cur_frm.set_value("status","To Be Check");
+		 cur_frm.save();	
 	},
 });
 frappe.ui.form.on("Travel Requisition", {
@@ -108,7 +173,10 @@ frappe.ui.form.on("Travel Requisition", {
 			method: "erpnext.hr.doctype.travel_request.travel_request.get_grade_child_details",
 			async:false,
 			args: {grade:frm.doc.employee_grade,
-				mode: d.mode},
+				mode: d.mode,
+				travelling_start_date:frm.doc.from_date,
+				travelling_end_date:frm.doc.to_date
+			},
 			callback: function(r) {
 				var options = r.message
 				

@@ -837,10 +837,9 @@
   },
   {
    "fieldname": "employee_grade",
-   "fieldtype": "Link",
+   "fieldtype": "Select",
    "label": "Employee Grade",
-   "options": "Employee Grade",
-   "reqd": 1
+   "options": "\nA1\nA2\nA3\nB1\nB2\nB3\nB4\nC1\nC2\nC3"
   },
   {
    "fieldname": "employee_vertical",
@@ -992,7 +991,6 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "hidden": 1,
    "label": "Series",
    "options": "HR-EMP-"
   }
@@ -1002,7 +1000,7 @@
  "idx": 24,
  "image_field": "image",
  "links": [],
- "modified": "2023-06-12 11:29:27.540466",
+ "modified": "2023-07-17 13:01:23.335495",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee",
