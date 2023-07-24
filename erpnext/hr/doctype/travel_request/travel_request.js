@@ -53,20 +53,28 @@ frappe.ui.form.on("Travel Request", {
 		}
 		if (!frm.doc.__islocal) {
 			$('.primary-action').prop('disabled', true);
-			if (frm.doc.status != "Draft" && frm.doc.status != "Return") {
+			if (cur_frm.doc.status != "Draft" && cur_frm.doc.status != "Return") {
 			
 				frm.fields.forEach(function(field) {
 					frm.set_df_property(field.df.fieldname, 'read_only', 1);
 				});
+			}else{
+				if (frappe.session.user !== frm.doc.prepared_by){
+					frm.fields.forEach(function(field) {
+						frm.set_df_property(field.df.fieldname, 'read_only', 1);
+					});
+				}
+
 			}
-			if (frappe.session.user === frm.doc.prepared_by){
-				if (frm.doc.status === "Draft" || frm.doc.status === "Return") {
+			if (frappe.session.user === cur_frm.doc.prepared_by){
+				if (cur_frm.doc.status === "Draft" || cur_frm.doc.status === "Return") {
 					cur_frm.add_custom_button(__('Approved Request'), () => cur_frm.events.approved_request(), __("Status"));
 				}
 				if (frm.doc.status == "To Be Check") {
 					cur_frm.disable_save();				
 				}				
 			}
+
 		}
 		if (frappe.session.user === cur_frm.doc.approved_by) {
 			if (frm.doc.status == "To Be Check" ){
@@ -84,9 +92,14 @@ frappe.ui.form.on("Travel Request", {
 				{
 					cur_frm.add_custom_button(__('Reject'), () => cur_frm.events.reject(), __("Status"));
 				}		
-			}		
+			}	
+
 		}
 		if (frappe.session.user === cur_frm.doc.checked_by) {
+			// if (frm.doc.check_remark){
+			
+			// 	$('.primary-action').prop('disabled', false);
+			// }
 			if (doc.status == "To Be Check" ){
 				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 			}
@@ -105,10 +118,6 @@ frappe.ui.form.on("Travel Request", {
 			],
 			primary_action_label: 'Submit',
 			primary_action(values) {
-				if (cur_frm.doc.amount_bill != cur_frm.doc.grand_total)
-				{
-					frappe.throw(cur_frm.doc.grand_total +  " Grand Total "  + " and " + cur_frm.doc.amount_bill + " Amount Bill " + " Mismatch ");
-				}
 				cur_frm.set_value("status","To Be Approved");
 				cur_frm.set_value('check_remark', (values["remark"]));
 				cur_frm.refresh_field('check_remark');
@@ -165,8 +174,31 @@ frappe.ui.form.on("Travel Request", {
 		 cur_frm.set_value("status","To Be Check");
 		 cur_frm.save();	
 	},
+	check_remark : function(){
+		if (cur_frm.doc.check_remark && frappe.session.user === cur_frm.doc.checked_by){
+			cur_frm.enable_save();
+		}else if (cur_frm.doc.check_remark){
+			cur_frm.disable_save();
+			window.location.reload();
+		}
+	},
+	remark: function(){
+		if (cur_frm.doc.remark && frappe.session.user === cur_frm.doc.approved_by){
+			cur_frm.set_df_property('check_remark', 'read_only', 1);
+			cur_frm.enable_save();
+		}
+	}
 });
 frappe.ui.form.on("Travel Requisition", {
+	date: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		if (!(row.date >= cur_frm.doc.from_date && row.date <= cur_frm.doc.to_date)) {
+			cur_frm.disable_save();
+			frappe.throw(__("Date must be equal to or between Form date and End date"));
+		}else{
+			cur_frm.enable_save();
+		}
+	},
 	mode:function(frm,cdt,cdn) {
 		var d = locals[cdt][cdn];
 		frappe.call({

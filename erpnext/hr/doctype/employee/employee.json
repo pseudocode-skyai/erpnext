@@ -837,9 +837,9 @@
   },
   {
    "fieldname": "employee_grade",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Employee Grade",
-   "options": "\nA1\nA2\nA3\nB1\nB2\nB3\nB4\nC1\nC2\nC3"
+   "options": "Employee Grade"
   },
   {
    "fieldname": "employee_vertical",
@@ -1000,7 +1000,7 @@
  "idx": 24,
  "image_field": "image",
  "links": [],
- "modified": "2023-07-17 13:01:23.335495",
+ "modified": "2023-07-24 13:21:12.124650",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee",

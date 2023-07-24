@@ -390,13 +390,14 @@
    "fieldname": "to_date",
    "fieldtype": "Date",
    "label": "To Date",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   }
  ],
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-07-17 13:08:57.266346",
+ "modified": "2023-07-24 15:38:49.846717",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",

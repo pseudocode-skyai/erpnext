@@ -18,7 +18,8 @@
    "fieldname": "city_type",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "City Type "
+   "label": "City Type ",
+   "read_only": 1
   },
   {
    "columns": 2,
@@ -51,7 +52,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-03 15:52:26.278080",
+ "modified": "2023-07-24 16:47:46.292919",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Travel Expense Limit Table",
