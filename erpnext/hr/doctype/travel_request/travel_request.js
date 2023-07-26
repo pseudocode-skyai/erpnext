@@ -3,9 +3,31 @@
 
 
 frappe.ui.form.on("Travel Request", {
+
+	employee: function(frm) {
+		frappe.call({                        
+			method: "erpnext.hr.doctype.travel_request.travel_request.get_employee_doc", 
+			args: { 
+				employee:frm.doc.employee,
+			},
+			callback: function(r) {
+				if( r.message == 1){
+                    cur_frm.disable_save();
+                    frappe.throw(__("Please set Travel Expense Approving Officer and Travel Expense Checking Officer for the Employee: " + frm.doc.employee));
+                }else if( r.message == 2){
+					cur_frm.disable_save();
+                    frappe.throw(__("Please set Travel Expense Checking Officer for the Employee: " + frm.doc.employee));
+				}else if( r.message == 3){
+					cur_frm.disable_save();
+                    frappe.throw(__("Please set Travel Expense Approving Officer for the Employee: " + frm.doc.employee));
+				}else{cur_frm.enable_save();}
+			}
+		})
+	},
+
 	to_date: function(frm) {
 		frappe.call({                        
-			method: "axis_india_app.travel_expense.doctype.outside_travel.outside_travel.get_doc", 
+			method: "erpnext.hr.doctype.travel_request.travel_request.get_doc", 
 			args: { 
 				travelling_start_date:frm.doc.from_date,
 				travelling_end_date:frm.doc.to_date,

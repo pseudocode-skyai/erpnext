@@ -804,8 +804,7 @@
    "fieldname": "expense_approver",
    "fieldtype": "Link",
    "label": "Travel Expense Approving Officer",
-   "options": "User",
-   "reqd": 1
+   "options": "User"
   },
   {
    "fieldname": "approvers_section",
@@ -944,8 +943,7 @@
    "fieldname": "travel_expense_checking_officer",
    "fieldtype": "Link",
    "label": "Travel Expense Checking Officer",
-   "options": "User",
-   "reqd": 1
+   "options": "User"
   },
   {
    "fieldname": "employee_current_address",
@@ -1000,7 +998,7 @@
  "idx": 24,
  "image_field": "image",
  "links": [],
- "modified": "2023-07-24 13:21:12.124650",
+ "modified": "2023-07-26 17:43:50.859926",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee",

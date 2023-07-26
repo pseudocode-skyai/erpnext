@@ -26,6 +26,18 @@ class TravelRequest(Document):
 			name.submit()
 			self.reload()
 
+@frappe.whitelist()
+def get_employee_doc(employee):
+	employee = frappe.get_doc("Employee",employee)
+	if not employee.expense_approver and not employee.travel_expense_checking_officer:
+		return 1
+	elif not employee.travel_expense_checking_officer:
+		return 2
+	elif not employee.expense_approver:
+		return 3
+	else:
+		return 0
+
 
 @frappe.whitelist()
 def report_to_person_view_travel_request_form(name,approving_officer,checking_officer):
