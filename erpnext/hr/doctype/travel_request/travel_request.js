@@ -26,14 +26,22 @@ frappe.ui.form.on("Travel Request", {
 	},
 
 	to_date: function(frm) {
-		frappe.call({                        
-			method: "erpnext.hr.doctype.travel_request.travel_request.get_doc", 
-			args: { 
-				travelling_start_date:frm.doc.from_date,
-				travelling_end_date:frm.doc.to_date,
-				grade:frm.doc.employee_grade
-				}
-		})
+		if (frm.doc.to_date <frm.doc.from_date) {
+			frm.doc.to_date = '';
+            frm.refresh_field('to_date');
+			frappe.throw('To Date must be greater than or equal to From Date');
+           
+        }
+		if (cur_frm.doc.from_date){
+			frappe.call({                        
+				method: "erpnext.hr.doctype.travel_request.travel_request.get_doc", 
+				args: { 
+					travelling_start_date:frm.doc.from_date,
+					travelling_end_date:frm.doc.to_date,
+					grade:frm.doc.employee_grade
+					}
+			})
+		}
 	},
 	grade_details: function(frm) {
 		$.each(frm.doc.travel_requisition || [], function (i, row) {
@@ -117,10 +125,7 @@ frappe.ui.form.on("Travel Request", {
 
 		}
 		if (frappe.session.user === cur_frm.doc.checked_by) {
-			// if (frm.doc.check_remark){
-			
-			// 	$('.primary-action').prop('disabled', false);
-			// }
+
 			if (doc.status == "Send For Approval" ){
 				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 			}
@@ -215,14 +220,6 @@ frappe.ui.form.on("Travel Request", {
             frm.refresh_field('from_date');
             frappe.throw('From Date must be less than or equal to To Date');
   
-        }
-    },
-	to_date: function(frm) {
-        if (frm.doc.to_date <frm.doc.from_date) {
-			frm.doc.to_date = '';
-            frm.refresh_field('to_date');
-			frappe.throw('To Date must be greater than or equal to From Date');
-           
         }
     }
 });
