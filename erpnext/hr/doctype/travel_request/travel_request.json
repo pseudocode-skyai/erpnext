@@ -94,7 +94,7 @@
    "hidden": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nDraft\nApproved\nReturn\nReject\nTo Be Check\nTo Be Approved"
+   "options": "\nDraft\nApproved\nReturn\nReject\nSend For Approval\nTo Be Approved"
   },
   {
    "allow_on_submit": 1,

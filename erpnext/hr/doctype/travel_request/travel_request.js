@@ -91,17 +91,17 @@ frappe.ui.form.on("Travel Request", {
 				if (cur_frm.doc.status === "Draft" || cur_frm.doc.status === "Return") {
 					cur_frm.add_custom_button(__('Approved Request'), () => cur_frm.events.approved_request(), __("Status"));
 				}
-				if (frm.doc.status == "To Be Check") {
+				if (frm.doc.status == "Send For Approval") {
 					cur_frm.disable_save();				
 				}				
 			}
 
 		}
 		if (frappe.session.user === cur_frm.doc.approved_by) {
-			if (frm.doc.status == "To Be Check" ){
+			if (frm.doc.status == "Send For Approval" ){
 				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 			}
-			if (frm.doc.status == "To Be Approved" || frm.doc.status == "To Be Check"){
+			if (frm.doc.status == "To Be Approved" || frm.doc.status == "Send For Approval"){
 				cur_frm.add_custom_button(__('Return'), () => cur_frm.events.return(), __("Status"));
 			}
 			if (frm.doc.status=== "To Be Approved") {
@@ -121,7 +121,7 @@ frappe.ui.form.on("Travel Request", {
 			
 			// 	$('.primary-action').prop('disabled', false);
 			// }
-			if (doc.status == "To Be Check" ){
+			if (doc.status == "Send For Approval" ){
 				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 			}
 		}
@@ -192,7 +192,7 @@ frappe.ui.form.on("Travel Request", {
 					checking_officer : cur_frm.doc.checked_by,
 				},	 
 		 });
-		 cur_frm.set_value("status","To Be Check");
+		 cur_frm.set_value("status","Send For Approval");
 		 cur_frm.save();	
 	},
 	check_remark : function(){
