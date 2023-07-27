@@ -60,7 +60,6 @@ frappe.ui.form.on("Travel Request", {
 		}
 	},
 	refresh: function (frm) {
-
 		if (frm.doc.status == "Reject") {
 			$('.primary-action').prop('disabled', true);
 			$('.primary-action').prop('hidden', true);		
@@ -209,17 +208,38 @@ frappe.ui.form.on("Travel Request", {
 			cur_frm.set_df_property('check_remark', 'read_only', 1);
 			cur_frm.enable_save();
 		}
-	}
+	},
+	from_date: function(frm) {
+        if (frm.doc.from_date >frm.doc.to_date) {
+			frm.doc.from_date = '';
+            frm.refresh_field('from_date');
+            frappe.throw('From Date must be less than or equal to To Date');
+  
+        }
+    },
+	to_date: function(frm) {
+        if (frm.doc.to_date <frm.doc.from_date) {
+			frm.doc.to_date = '';
+            frm.refresh_field('to_date');
+			frappe.throw('To Date must be greater than or equal to From Date');
+           
+        }
+    }
 });
 frappe.ui.form.on("Travel Requisition", {
 	date: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
-		if (!(row.date >= cur_frm.doc.from_date && row.date <= cur_frm.doc.to_date)) {
+		if (row.date){
+			if (!(row.date >= cur_frm.doc.from_date && row.date <= cur_frm.doc.to_date)) {
 			cur_frm.disable_save();
+			frappe.model.set_value(cdt, cdn, 'date', null);
 			frappe.throw(__("Date must be equal to or between Form date and End date"));
+			
 		}else{
 			cur_frm.enable_save();
 		}
+		}
+	
 	},
 	mode:function(frm,cdt,cdn) {
 		var d = locals[cdt][cdn];
