@@ -37,9 +37,15 @@ frappe.ui.form.on("Travel Request", {
 				method: "erpnext.hr.doctype.travel_request.travel_request.get_doc", 
 				args: { 
 					travelling_start_date:frm.doc.from_date,
-					travelling_end_date:frm.doc.to_date,
 					grade:frm.doc.employee_grade
+					},
+				callback: function(r) {
+					if (r.message == 0){ 
+						frm.set_value('from_date', null);
+						frappe.throw(__("No Travel Allowance Policy found."));
+						frappe.validated = false;
 					}
+				}
 			})
 		}
 	},
@@ -97,19 +103,19 @@ frappe.ui.form.on("Travel Request", {
 			}
 			if (frappe.session.user === cur_frm.doc.prepared_by){
 				if (cur_frm.doc.status === "Draft" || cur_frm.doc.status === "Return") {
-					cur_frm.add_custom_button(__('Approved Request'), () => cur_frm.events.approved_request(), __("Status"));
+					cur_frm.add_custom_button(__('Sent to Approval'), () => cur_frm.events.approved_request(), __("Status"));
 				}
-				if (frm.doc.status == "Send For Approval") {
+				if (frm.doc.status == "To Be Check") {
 					cur_frm.disable_save();				
 				}				
 			}
 
 		}
 		if (frappe.session.user === cur_frm.doc.approved_by) {
-			if (frm.doc.status == "Send For Approval" ){
+			if (frm.doc.status == "To Be Check" ){
 				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 			}
-			if (frm.doc.status == "To Be Approved" || frm.doc.status == "Send For Approval"){
+			if (frm.doc.status == "To Be Approved" || frm.doc.status == "To Be Check"){
 				cur_frm.add_custom_button(__('Return'), () => cur_frm.events.return(), __("Status"));
 			}
 			if (frm.doc.status=== "To Be Approved") {
@@ -126,7 +132,7 @@ frappe.ui.form.on("Travel Request", {
 		}
 		if (frappe.session.user === cur_frm.doc.checked_by) {
 
-			if (doc.status == "Send For Approval" ){
+			if (doc.status == "To Be Check" ){
 				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 			}
 		}
@@ -197,7 +203,7 @@ frappe.ui.form.on("Travel Request", {
 					checking_officer : cur_frm.doc.checked_by,
 				},	 
 		 });
-		 cur_frm.set_value("status","Send For Approval");
+		 cur_frm.set_value("status","To Be Check");
 		 cur_frm.save();	
 	},
 	check_remark : function(){
@@ -246,7 +252,6 @@ frappe.ui.form.on("Travel Requisition", {
 			args: {grade:frm.doc.employee_grade,
 				mode: d.mode,
 				travelling_start_date:frm.doc.from_date,
-				travelling_end_date:frm.doc.to_date
 			},
 			callback: function(r) {
 				var options = r.message

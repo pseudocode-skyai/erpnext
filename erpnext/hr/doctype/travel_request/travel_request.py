@@ -47,24 +47,25 @@ def report_to_person_view_travel_request_form(name,approving_officer,checking_of
 
 
 @frappe.whitelist()
-def get_doc(travelling_start_date, travelling_end_date, grade):
-    exists = frappe.db.exists(
-        "Travel Allowance Policy",
-        {
-            "effective_from_date": ["<=", travelling_start_date],
-            "policy_end_date": [">=", travelling_end_date],
-            "grade": grade,
-        }
-    )
-    if exists:
-        doc = frappe.get_doc("Travel Allowance Policy", exists)
-        return doc
+def get_doc(travelling_start_date, grade):
+    sql_query = """
+        SELECT *
+        FROM `tabTravel Allowance Policy`
+        WHERE effective_from_date <= %s
+        AND (policy_end_date > %s OR policy_end_date = '' OR policy_end_date IS NULL)
+        AND grade = %s
+    """
+    policies = frappe.db.sql(sql_query, (travelling_start_date, travelling_start_date, grade), as_dict=True)
+    
+    if policies:
+        return frappe.get_doc("Travel Allowance Policy", policies[0].name)
     else:
-        frappe.throw("No Travel Allowance Policy found.")
+        return 0
+
 	
 @frappe.whitelist()
-def get_grade_child_details(grade,mode,travelling_start_date,travelling_end_date):
-	doc = get_doc(travelling_start_date, travelling_end_date, grade)
+def get_grade_child_details(grade,mode,travelling_start_date):
+	doc = get_doc(travelling_start_date, grade)
 	mode_data = []
 	if mode == "Bus":
 		for travel_mode in doc.get("bus"):

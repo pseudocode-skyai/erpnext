@@ -21,7 +21,7 @@ frappe.get_indicator = function(doc, doctype) {
 	else if (doc.docstatus === 0 && doc.status === "Reject") {
 		return [__("Reject"), "black", "status,=,Reject"];
 	}
-	else if (doc.docstatus === 0 && doc.status === "Send For Approval") {
-		return [__("Send For Approval"), "pink", "status,=,Send For Approval"];
+	else if (doc.docstatus === 0 && doc.status === "To Be Check") {
+		return [__("To Be Check"), "pink", "status,=,To Be Check"];
 	}
 };
