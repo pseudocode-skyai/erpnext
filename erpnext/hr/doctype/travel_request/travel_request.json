@@ -94,7 +94,7 @@
    "hidden": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nDraft\nApproved\nReturn\nReject\nSend For Approval\nTo Be Check"
+   "options": "\nDraft\nApproved\nReturn\nReject\nTo Be Approved\nTo Be Check"
   },
   {
    "allow_on_submit": 1,
@@ -396,7 +396,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-07-28 18:22:33.534674",
+ "modified": "2023-07-28 21:01:19.127033",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",
