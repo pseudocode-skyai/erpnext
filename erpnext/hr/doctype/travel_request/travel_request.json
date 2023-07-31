@@ -156,6 +156,7 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Employee ID",
@@ -396,7 +397,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-07-28 21:01:19.127033",
+ "modified": "2023-07-31 17:50:42.055050",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",
