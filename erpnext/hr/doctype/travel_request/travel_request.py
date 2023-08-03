@@ -22,8 +22,8 @@ class TravelRequest(Document):
 
 	def on_update(self):
 		if self.status == "Approved":
-			name = frappe.get_doc("Travel Request", self.name)
-			name.submit()
+			self.flags.ignore_permissions = True
+			self.submit()
 			self.reload()
 
 @frappe.whitelist()

@@ -103,7 +103,7 @@ frappe.ui.form.on("Travel Request", {
 			}
 			if (frappe.session.user === cur_frm.doc.prepared_by){
 				if (cur_frm.doc.status === "Draft" || cur_frm.doc.status === "Return") {
-					cur_frm.add_custom_button(__('Sent to Approval'), () => cur_frm.events.approved_request(), __("Status"));
+					cur_frm.add_custom_button(__('Send to Approval'), () => cur_frm.events.approved_request(), __("Status"));
 				}
 				if (frm.doc.status == "To Be Check") {
 					cur_frm.disable_save();				
