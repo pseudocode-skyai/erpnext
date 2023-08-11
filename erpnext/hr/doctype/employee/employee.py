@@ -524,8 +524,8 @@ def has_upload_permission(doc, ptype="read", user=None):
 
 @frappe.whitelist()
 def get_employee_data(expense_approver):
-	if frappe.db.exists({"doctype": "Employee", "personal_email": expense_approver}):
-		employee_data = frappe.get_doc("Employee", {"personal_email": expense_approver})
+	if frappe.db.exists({"doctype": "Employee", "company_email": expense_approver}):
+		employee_data = frappe.get_doc("Employee", {"company_email": expense_approver})
 	else:
 		frappe.msgprint("Employee Data Not Found" + "-" + str(expense_approver))
 		employee_data = "None"
