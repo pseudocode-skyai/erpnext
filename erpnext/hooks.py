@@ -484,6 +484,7 @@ scheduler_events = {
 		"erpnext.stock.doctype.repost_item_valuation.repost_item_valuation.repost_entries"
 	],
 	"daily": [
+        "erpnext.payroll.doctype.payroll_entry.payroll_entry.generate_payroll_entry",
 		"erpnext.stock.reorder_item.reorder_item",
 		"erpnext.support.doctype.issue.issue.auto_close_tickets",
 		"erpnext.crm.doctype.opportunity.opportunity.auto_close_opportunity",
