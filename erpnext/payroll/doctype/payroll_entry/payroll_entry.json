@@ -270,6 +270,7 @@
    "reqd": 1
   },
   {
+   "default": "1",
    "depends_on": "company",
    "fieldname": "exchange_rate",
    "fieldtype": "Float",
@@ -278,6 +279,7 @@
    "reqd": 1
   },
   {
+   "default": "Payroll Payable - A",
    "depends_on": "company",
    "fieldname": "payroll_payable_account",
    "fieldtype": "Link",
@@ -289,7 +291,7 @@
  "icon": "fa fa-cog",
  "is_submittable": 1,
  "links": [],
- "modified": "2020-12-17 15:13:17.766210",
+ "modified": "2023-08-08 10:07:25.085314",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Payroll Entry",
