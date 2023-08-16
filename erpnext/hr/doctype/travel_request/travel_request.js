@@ -13,14 +13,8 @@ frappe.ui.form.on("Travel Request", {
 			callback: function(r) {
 				if( r.message == 1){
                     cur_frm.disable_save();
-                    frappe.throw(__("Please set Travel Expense Approving Officer and Travel Expense Checking Officer for the Employee: " + frm.doc.employee));
-                }else if( r.message == 2){
-					cur_frm.disable_save();
-                    frappe.throw(__("Please set Travel Expense Checking Officer for the Employee: " + frm.doc.employee));
-				}else if( r.message == 3){
-					cur_frm.disable_save();
-                    frappe.throw(__("Please set Travel Expense Approving Officer for the Employee: " + frm.doc.employee));
-				}else{cur_frm.enable_save();}
+                    frappe.throw(__("Please set Travel Expense Approving Officer" + frm.doc.employee));
+                }else{cur_frm.enable_save();}
 			}
 		})
 	},
@@ -130,14 +124,33 @@ frappe.ui.form.on("Travel Request", {
 			}	
 
 		}
-		if (frappe.session.user === cur_frm.doc.checked_by) {
-
-			if (doc.status == "To Be Check" ){
-				cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
-			}
+		frappe.call({                        
+			method: "erpnext.hr.doctype.travel_request.travel_request.travel_request_form", 
+			async:false,
+			args: { 
+					name:cur_frm.doc.name,
+				},
+				callback :function(r){
+					console.log(r.message);
+					var accountantUsers = r.message;
+					var currentUserEmail = frappe.session.user;
+					
+					if (accountantUsers) {
+						for (var i = 0; i < accountantUsers.length; i++) {
+							if (currentUserEmail === accountantUsers[i].name) {
+								if (doc.status == "To Be Check" ){
+									cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
+								}
+							}
+						}
+					}
+				}	 
+		 });
+		if (cur_frm.doc.status=="To Be Check" && cur_frm.doc.check_remark ){
+			cur_frm.events.check_remark(frm);
 		}
 	},
-	checking: function(){
+	checking: function(frm){
 		
 		let d = new frappe.ui.Dialog({
 			title: 'Remark',
@@ -154,7 +167,10 @@ frappe.ui.form.on("Travel Request", {
 				cur_frm.set_value('check_remark', (values["remark"]));
 				cur_frm.refresh_field('check_remark');
 				d.hide();
+				var currentUserEmail = frappe.session.user;
+				cur_frm.set_value("checked_by",currentUserEmail);
 				cur_frm.save();
+				cur_frm.events.send_notification_to_accountant(frm);
 				cur_frm.reload();	
 			}
 		});
@@ -171,7 +187,7 @@ frappe.ui.form.on("Travel Request", {
 		cur_frm.set_value("status","Return");
 		cur_frm.save();
 	},
-	approved: function(){
+	approved: function(frm){
 		let d = new frappe.ui.Dialog({
 			title: 'Approved Expenses By HOD',
 			fields: [
@@ -188,35 +204,49 @@ frappe.ui.form.on("Travel Request", {
 				cur_frm.set_value('remark', (values["remark"]));
 				cur_frm.refresh_field('remark');
 				cur_frm.save();
+				cur_frm.events.send_notification_to_accountant(frm);
 				cur_frm.reload();	
 			}
 		});
 		d.show();
 	},
-	approved_request: function(){
+	approved_request: function(frm){
 		frappe.call({                        
 			method: "erpnext.hr.doctype.travel_request.travel_request.report_to_person_view_travel_request_form", 
 			async:false,
 			args: { 
 					name:cur_frm.doc.name,
 					approving_officer : cur_frm.doc.approved_by,
-					checking_officer : cur_frm.doc.checked_by,
 				},	 
 		 });
 		 cur_frm.set_value("status","To Be Check");
 		 cur_frm.save();	
+		 cur_frm.events.send_notification_to_accountant(frm);
 	},
-	check_remark : function(){
-		if (cur_frm.doc.check_remark && frappe.session.user === cur_frm.doc.checked_by){
-			cur_frm.enable_save();
-		}else if (cur_frm.doc.check_remark){
-			cur_frm.disable_save();
-			window.location.reload();
-		}
+	check_remark : function(frm){
+		frappe.call({                        
+			method: "erpnext.hr.doctype.travel_request.travel_request.travel_request_form", 
+			async:false,
+			args: { 
+					name:cur_frm.doc.name,
+				},
+				callback :function(r){
+					var accountantUsers = r.message;
+					var currentUserEmail = frappe.session.user;
+					var emails = accountantUsers.map(user => user.name);
+					if (emails.includes(currentUserEmail)) {
+						console.log("Current user's data is present in arr.");
+						cur_frm.set_df_property('check_remark', 'read_only', 0);
+						cur_frm.enable_save();
+					} else {
+						cur_frm.set_df_property('check_remark', 'read_only', 1);
+					}
+
+				}	 
+		 });
 	},
 	remark: function(){
 		if (cur_frm.doc.remark && frappe.session.user === cur_frm.doc.approved_by){
-			cur_frm.set_df_property('check_remark', 'read_only', 1);
 			cur_frm.enable_save();
 		}
 	},
@@ -227,7 +257,29 @@ frappe.ui.form.on("Travel Request", {
             frappe.throw('From Date must be less than or equal to To Date');
   
         }
-    }
+    },
+	setup:function(frm){
+		frm.set_query('checked_by', function(doc) {
+			return {
+				filters: {
+					"designation": "Accountant",
+					"user": doc.user
+				},
+				
+			};
+		});
+	},
+	send_notification_to_accountant:function(frm){
+		frappe.call({                        
+			method: "erpnext.hr.doctype.travel_request.travel_request.generate_accountant_notification", 
+			async:false,
+			args: { 
+					name:cur_frm.doc.name,
+					name_of_employee : cur_frm.doc.employee_name,
+					status : cur_frm.doc.status
+				},	 
+		 });
+	}
 });
 frappe.ui.form.on("Travel Requisition", {
 	date: function(frm, cdt, cdn) {

@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+import datetime
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 from erpnext.hr.utils import validate_active_employee
@@ -29,21 +30,20 @@ class TravelRequest(Document):
 @frappe.whitelist()
 def get_employee_doc(employee):
 	employee = frappe.get_doc("Employee",employee)
-	if not employee.expense_approver and not employee.travel_expense_checking_officer:
+	if not employee.expense_approver:
 		return 1
-	elif not employee.travel_expense_checking_officer:
-		return 2
-	elif not employee.expense_approver:
-		return 3
 	else:
 		return 0
 
 
 @frappe.whitelist()
-def report_to_person_view_travel_request_form(name,approving_officer,checking_officer):
+def report_to_person_view_travel_request_form(name,approving_officer):
 	get_travel_request_form = frappe.get_doc("Travel Request",name)
 	share_doc_with_approver(get_travel_request_form, approving_officer)
-	share_doc_with_approver(get_travel_request_form, checking_officer)
+	accountant_users = frappe.get_all("User", filters={"designation": "Accountant"})
+	if accountant_users:
+			for user in accountant_users:
+				share_doc_with_approver(get_travel_request_form, user.name)
 
 
 @frappe.whitelist()
@@ -82,3 +82,31 @@ def get_grade_child_details(grade,mode,travelling_start_date):
 
 	return mode_data
 
+
+@frappe.whitelist()
+def generate_accountant_notification(name,name_of_employee,status):
+	arr = []
+	accountant_users = frappe.get_all("User", filters={"designation": "Accountant"})
+	if accountant_users:
+		for user in accountant_users:
+			create_event = frappe.new_doc("Event")
+			create_event.subject = f"{name} - {name_of_employee}"
+			create_event.description = "Travel Request"
+			create_event.starts_on = datetime.date.today()
+			create_event.sender = user.name
+			if status == "To Be Check":
+				create_event.status = "Travel Form To Be Check"
+			elif status == "To Be Approved":
+				create_event.status = "Travel Form To Be Approved"
+			elif status == "Approved":
+				create_event.status = "Travel Form Approved"
+			create_event.insert(ignore_mandatory=True, ignore_permissions = True)
+
+@frappe.whitelist()
+def travel_request_form(name):
+	arr = []
+	accountant_users = frappe.get_all("User", filters={"designation": "Accountant"})
+	if accountant_users:
+			for user in accountant_users:
+				arr.append(user)
+			return arr
