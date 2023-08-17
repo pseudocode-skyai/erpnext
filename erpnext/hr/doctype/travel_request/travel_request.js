@@ -68,6 +68,15 @@ frappe.ui.form.on("Travel Request", {
 		}
 	},
 	refresh: function (frm) {
+		cur_frm.page.clear_primary_action();
+		let divElement = document.querySelector('.form-message.blue');
+
+		// Check if the element was found
+		if (divElement) {
+			// Hide the element by setting its display property to 'none'
+			divElement.style.display = 'none';
+		}
+
 		if (frm.doc.status == "Reject") {
 			$('.primary-action').prop('disabled', true);
 			$('.primary-action').prop('hidden', true);		
