@@ -16,4 +16,9 @@ frappe.ui.form.on('Payroll Settings', {
 			frm.set_value('password_policy', policy.split(new RegExp(" |-", 'g')).filter((token) => token).join('-'));
 		}
 	},
+	generate_payroll_automanually:function(frm){
+		if(frm.doc.payroll_generate == "Manually"){
+			frm.set_value("date_of_payroll_entry","")
+		}
+	}
 });
