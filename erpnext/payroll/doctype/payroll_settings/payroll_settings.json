@@ -7,8 +7,6 @@
  "engine": "InnoDB",
  "field_order": [
   "payroll_based_on",
-  "payroll_generate",
-  "date_of_payroll_entry",
   "consider_unmarked_attendance_as",
   "max_working_hours_against_timesheet",
   "include_holidays_in_total_working_days",
@@ -93,28 +91,13 @@
    "fieldname": "show_leave_balances_in_salary_slip",
    "fieldtype": "Check",
    "label": "Show Leave Balances in Salary Slip"
-  },
-  {
-   "default": "Manually",
-   "fieldname": "payroll_generate",
-   "fieldtype": "Select",
-   "label": "Payroll Generate",
-   "options": "Manually\nAutomatically"
-  },
-  {
-   "depends_on": "eval: doc.payroll_generate == \"Automatically\"",
-   "fieldname": "date_of_payroll_entry",
-   "fieldtype": "Select",
-   "label": "Date of Payroll Entry",
-   "mandatory_depends_on": "eval: doc.payroll_generate == \"Automatically\"",
-   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31"
   }
  ],
  "icon": "fa fa-cog",
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-08-16 17:13:59.710094",
+ "modified": "2021-03-03 17:49:59.579723",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Payroll Settings",
