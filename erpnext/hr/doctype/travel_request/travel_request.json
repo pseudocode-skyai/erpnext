@@ -75,7 +75,7 @@
    "options": "User"
   },
   {
-   "fetch_from": "employee_id.grade",
+   "fetch_from": "employee.grade",
    "fieldname": "employee_grade",
    "fieldtype": "Data",
    "label": " Employee Grade",
