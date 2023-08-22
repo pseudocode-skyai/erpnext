@@ -24,4 +24,7 @@ frappe.get_indicator = function(doc, doctype) {
 	else if (doc.docstatus === 0 && doc.status === "To Be Check") {
 		return [__("To Be Check"), "pink", "status,=,To Be Check"];
 	}
+	else if (doc.status === "Cancel the Request") {
+		return [__("Cancel the Request"), "yellow", "status,=,Cancel the Request"];
+	}
 };

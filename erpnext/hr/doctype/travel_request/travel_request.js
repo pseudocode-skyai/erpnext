@@ -14,6 +14,13 @@ frappe.ui.form.on("Travel Request", {
 				if( r.message == 1){
                     cur_frm.disable_save();
                     frappe.throw(__("Please set Travel Expense Approving Officer" + frm.doc.employee));
+                }else if( r.message == 2){
+                    cur_frm.disable_save();
+                    frappe.throw(__("Please set Employee Grade: " + frm.doc.employee_id));
+                }
+				else if( r.message == 3){
+                    cur_frm.disable_save();
+                    frappe.throw(__("Please set Travel Expense Approving Officer and Employee Grade: " + frm.doc.employee_id));
                 }else{cur_frm.enable_save();}
 			}
 		})
@@ -69,6 +76,7 @@ frappe.ui.form.on("Travel Request", {
 	},
 	refresh: function (frm) {
 		cur_frm.page.clear_primary_action();
+		cur_frm.page.clear_secondary_action();
 		let divElement = document.querySelector('.form-message.blue');
 
 		// Check if the element was found
@@ -110,7 +118,16 @@ frappe.ui.form.on("Travel Request", {
 				}
 				if (frm.doc.status == "To Be Check") {
 					cur_frm.disable_save();				
-				}				
+				}		
+				if (frm.doc.status != "Cancel the Request" && cur_frm.doc.status != "Draft")
+				{
+					if (cur_frm.doc.status === "Approved"){
+						cur_frm.page.set_secondary_action(__('Cancel the Request'), () => cur_frm.events.cancel());
+					}else {
+						cur_frm.add_custom_button(__('Cancel the Request'), () => cur_frm.events.cancel());
+					}
+				}
+		
 			}
 
 		}
@@ -179,22 +196,36 @@ frappe.ui.form.on("Travel Request", {
 				var currentUserEmail = frappe.session.user;
 				cur_frm.set_value("checked_by",currentUserEmail);
 				cur_frm.save();
-				cur_frm.events.send_notification_to_accountant(frm);
+				cur_frm.events.send_notification_to_user(frm);
 				cur_frm.reload();	
 			}
 		});
 		d.show();
 	},
-	reject: function(){
+	cancel: function(frm){
+		cur_frm.set_value("status", "Cancel the Request");
+		cur_frm.save();
+		cur_frm.events.send_notification_to_user(frm);
+		cur_frm.fields.forEach(function(field) {
+			cur_frm.set_df_property(field.df.fieldname, 'read_only', 1);
+		});
+	},
+	reject: function(frm){
 		cur_frm.set_value("status","Reject");
 		cur_frm.save();
+		cur_frm.events.send_notification_to_user(frm);
+
+		cur_frm.fields.forEach(function(field) {
+			frm.set_df_property(field.df.fieldname, 'read_only', 1);
+		});
 		setTimeout(function(){
 			window.location.reload(1);
 		}, 500);
 	},
-	return: function(){
+	return: function(frm){
 		cur_frm.set_value("status","Return");
 		cur_frm.save();
+		cur_frm.events.send_notification_to_user(frm);
 	},
 	approved: function(frm){
 		let d = new frappe.ui.Dialog({
@@ -203,7 +234,8 @@ frappe.ui.form.on("Travel Request", {
 				{
 					label: 'Remark',
 					fieldname: 'remark',
-					fieldtype: 'Small Text'
+					fieldtype: 'Small Text',
+					"reqd": 1,
 				},
 			],
 			primary_action_label: 'Submit',
@@ -213,7 +245,7 @@ frappe.ui.form.on("Travel Request", {
 				cur_frm.set_value('remark', (values["remark"]));
 				cur_frm.refresh_field('remark');
 				cur_frm.save();
-				cur_frm.events.send_notification_to_accountant(frm);
+				cur_frm.events.send_notification_to_user(frm);
 				cur_frm.reload();	
 			}
 		});
@@ -230,7 +262,7 @@ frappe.ui.form.on("Travel Request", {
 		 });
 		 cur_frm.set_value("status","To Be Check");
 		 cur_frm.save();	
-		 cur_frm.events.send_notification_to_accountant(frm);
+		 cur_frm.events.send_notification_to_user(frm);
 	},
 	check_remark : function(frm){
 		frappe.call({                        
@@ -278,14 +310,16 @@ frappe.ui.form.on("Travel Request", {
 			};
 		});
 	},
-	send_notification_to_accountant:function(frm){
+	send_notification_to_user:function(frm){
 		frappe.call({                        
 			method: "erpnext.hr.doctype.travel_request.travel_request.generate_accountant_notification", 
 			async:false,
 			args: { 
 					name:cur_frm.doc.name,
 					name_of_employee : cur_frm.doc.employee_name,
-					status : cur_frm.doc.status
+					status : cur_frm.doc.status,
+					approving_officer :cur_frm.doc.approved_by,
+					prepared_by :cur_frm.doc.prepared_by
 				},	 
 		 });
 	}

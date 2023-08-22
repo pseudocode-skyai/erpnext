@@ -75,11 +75,12 @@
    "options": "User"
   },
   {
-   "fetch_from": "employee.employee_grade",
+   "fetch_from": "employee_id.grade",
    "fieldname": "employee_grade",
    "fieldtype": "Data",
    "label": " Employee Grade",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "amended_from",
@@ -91,12 +92,13 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "status",
    "fieldtype": "Select",
    "hidden": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nDraft\nApproved\nReturn\nReject\nTo Be Approved\nTo Be Check"
+   "options": "\nDraft\nTo Be Approved\nTo Be Check\nApproved\nReject\nReturn\nCancel the Request"
   },
   {
    "allow_on_submit": 1,
@@ -345,7 +347,7 @@
    "fieldtype": "Small Text"
   },
   {
-   "depends_on": "eval:doc.status == \"Approved\"",
+   "depends_on": "eval:doc.remark != null\n&& (doc.status == \"Approved\" ||doc.status ==\"Cancel the Request\")",
    "fieldname": "approver_remark_section",
    "fieldtype": "Section Break",
    "label": "Approver Remark"
@@ -374,9 +376,10 @@
   },
   {
    "allow_on_submit": 1,
+   "depends_on": "eval: doc.check_remark != null",
    "fieldname": "check_remark",
    "fieldtype": "Small Text",
-   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Check Role')  || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\""
+   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Check Role')  || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\" || doc.status ==\"Cancel the Request\""
   },
   {
    "fieldname": "from_date",
@@ -408,7 +411,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-17 10:12:59.448002",
+ "modified": "2023-08-22 19:07:47.173385",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",

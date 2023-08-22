@@ -32,6 +32,10 @@ def get_employee_doc(employee):
 	employee = frappe.get_doc("Employee",employee)
 	if not employee.expense_approver:
 		return 1
+	elif not employee.grade:
+		return 2
+	elif not employee.grade and not employee.expense_approver:
+		return 3
 	else:
 		return 0
 
@@ -40,9 +44,11 @@ def get_employee_doc(employee):
 def report_to_person_view_travel_request_form(name,approving_officer):
 	get_travel_request_form = frappe.get_doc("Travel Request",name)
 	share_doc_with_approver(get_travel_request_form, approving_officer)
-	accountant_users = frappe.get_all("User", filters={"designation": "Accountant"})
-	if accountant_users:
-			for user in accountant_users:
+	combined_users = frappe.get_all("User", filters={
+            "designation": ["in", ["Accountant", "HR"]]
+        })
+	if combined_users:
+			for user in combined_users:
 				share_doc_with_approver(get_travel_request_form, user.name)
 
 
@@ -82,25 +88,45 @@ def get_grade_child_details(grade,mode,travelling_start_date):
 
 	return mode_data
 
+@frappe.whitelist()
+def generate_accountant_notification(name,name_of_employee,status,approving_officer,prepared_by):
+	arr = []
+	combined_users = frappe.get_all("User", filters={
+            "designation": ["in", ["Accountant", "HR"]]
+        })	
+	for user in combined_users:
+		user_name = user.name
+		notification_send_to_user(name,name_of_employee,status,user_name)
+
+	if approving_officer != "":
+		user_name = approving_officer
+		notification_send_to_user(name,name_of_employee,status,user_name)
+
+	if status == "Approved":
+		user_name = prepared_by
+		notification_send_to_user(name,name_of_employee,status,user_name)
 
 @frappe.whitelist()
-def generate_accountant_notification(name,name_of_employee,status):
-	arr = []
-	accountant_users = frappe.get_all("User", filters={"designation": "Accountant"})
-	if accountant_users:
-		for user in accountant_users:
-			create_event = frappe.new_doc("Event")
-			create_event.subject = f"{name} - {name_of_employee}"
-			create_event.description = "Travel Request"
-			create_event.starts_on = datetime.date.today()
-			create_event.sender = user.name
-			if status == "To Be Check":
-				create_event.status = "Travel Form To Be Check"
-			elif status == "To Be Approved":
-				create_event.status = "Travel Form To Be Approved"
-			elif status == "Approved":
-				create_event.status = "Travel Form Approved"
-			create_event.insert(ignore_mandatory=True, ignore_permissions = True)
+def notification_send_to_user(name,name_of_employee,status,user_name):
+	create_event = frappe.new_doc("Event")
+	create_event.subject = f"{name} - {name_of_employee}"
+	create_event.description = "Travel Request"
+	create_event.starts_on = datetime.date.today()
+	create_event.sender =user_name
+	if status == "To Be Check":
+		create_event.status = "Travel Form To Be Check"
+	elif status == "To Be Approved":
+		create_event.status = "Travel Form To Be Approved"
+	elif status == "Approved":
+		create_event.status = "Travel Form Approved"
+	elif status == "Reject":
+		create_event.status = "Travel Form Reject"
+	elif status == "Return":
+		create_event.status = "Travel Form Return"
+	elif status == "Cancel the Request":
+		create_event.status = "Travel Form Cancel the Request"
+	create_event.insert(ignore_mandatory=True, ignore_permissions = True)
+
 
 @frappe.whitelist()
 def travel_request_form(name):
