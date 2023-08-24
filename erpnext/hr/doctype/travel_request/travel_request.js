@@ -63,13 +63,12 @@ frappe.ui.form.on("Travel Request", {
 					callback: function(response){
 						// console.log(response.message);
 						var currentempployeeform = response.message
-	
-						cur_frm.set_value("employee",currentempployeeform.employee_number);
+						cur_frm.set_value("employee",currentempployeeform.name);
 						cur_frm.set_value("employee_name",currentempployeeform.employee_name);
 	
 						if (!currentempployeeform.grade && !currentempployeeform.expense_approver){
 							cur_frm.disable_save();
-							frappe.throw(__("Please set Travel Expense Approving Officer and Employee Grade:  " + currentempployeeform.employee_number));
+							frappe.throw(__("Please set Travel Expense Approving Officer and Employee Grade:  " + currentempployeeform.name));
 						}
 						else if (!currentempployeeform.grade && currentempployeeform.expense_approver){
 							cur_frm.set_value("approved_by",currentempployeeform.expense_approver);
@@ -78,7 +77,7 @@ frappe.ui.form.on("Travel Request", {
 						}else if (!currentempployeeform.expense_approver && currentempployeeform.grade ){
 							cur_frm.set_value("employee_grade",currentempployeeform.grade);
 							cur_frm.disable_save();
-							frappe.throw(__("Please set Travel Expense Approving Officer: " + currentempployeeform.employee_number));
+							frappe.throw(__("Please set Travel Expense Approving Officer: " + currentempployeeform.name));
 						}
 						else{
 							cur_frm.set_value("employee_grade",currentempployeeform.grade);
