@@ -3,29 +3,6 @@
 
 
 frappe.ui.form.on("Travel Request", {
-
-	employee: function(frm) {
-		frappe.call({                        
-			method: "erpnext.hr.doctype.travel_request.travel_request.get_employee_doc", 
-			args: { 
-				employee:frm.doc.employee,
-			},
-			callback: function(r) {
-				if( r.message == 1){
-                    cur_frm.disable_save();
-                    frappe.throw(__("Please set Travel Expense Approving Officer" + frm.doc.employee));
-                }else if( r.message == 2){
-                    cur_frm.disable_save();
-                    frappe.throw(__("Please set Employee Grade: " + frm.doc.employee_id));
-                }
-				else if( r.message == 3){
-                    cur_frm.disable_save();
-                    frappe.throw(__("Please set Travel Expense Approving Officer and Employee Grade: " + frm.doc.employee_id));
-                }else{cur_frm.enable_save();}
-			}
-		})
-	},
-
 	to_date: function(frm) {
 		if (frm.doc.to_date <frm.doc.from_date) {
 			frm.doc.to_date = '';
@@ -276,7 +253,6 @@ frappe.ui.form.on("Travel Request", {
 					var currentUserEmail = frappe.session.user;
 					var emails = accountantUsers.map(user => user.name);
 					if (emails.includes(currentUserEmail)) {
-						console.log("Current user's data is present in arr.");
 						cur_frm.set_df_property('check_remark', 'read_only', 0);
 						cur_frm.enable_save();
 					} else {
@@ -309,6 +285,40 @@ frappe.ui.form.on("Travel Request", {
 				
 			};
 		});
+		var currentUserEmail = frappe.session.user;
+		if (currentUserEmail) {
+			frappe.call({
+				"method": "erpnext.hr.doctype.travel_request.travel_request.get_employee_data",
+				args: {
+					currentUserEmail: currentUserEmail
+				},
+				callback: function(response){
+					// console.log(response.message);
+					var currentempployeeform = response.message
+
+					cur_frm.set_value("employee",currentempployeeform.employee_code);
+					cur_frm.set_value("employee_name",currentempployeeform.employee_name);
+
+					if (!currentempployeeform.grade && !currentempployeeform.expense_approver){
+						cur_frm.disable_save();
+						frappe.throw(__("Please set Travel Expense Approving Officer and Employee Grade:  " + currentempployeeform.employee_code));
+					}
+					else if (!currentempployeeform.grade && currentempployeeform.expense_approver){
+						cur_frm.set_value("approved_by",currentempployeeform.expense_approver);
+						cur_frm.disable_save();
+						frappe.throw(__("Please set Employee Grade: " + currentempployeeform.employee_code));
+					}else if (!currentempployeeform.expense_approver && currentempployeeform.grade ){
+						cur_frm.set_value("employee_grade",currentempployeeform.grade);
+						cur_frm.disable_save();
+						frappe.throw(__("Please set Travel Expense Approving Officer: " + currentempployeeform.employee_code));
+					}
+					else{
+						cur_frm.set_value("employee_grade",currentempployeeform.grade);
+						cur_frm.set_value("approved_by",currentempployeeform.expense_approver);
+					}
+				}
+			})
+		}
 	},
 	send_notification_to_user:function(frm){
 		frappe.call({                        

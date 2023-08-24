@@ -27,18 +27,6 @@ class TravelRequest(Document):
 			self.submit()
 			self.reload()
 
-@frappe.whitelist()
-def get_employee_doc(employee):
-	employee = frappe.get_doc("Employee",employee)
-	if not employee.expense_approver:
-		return 1
-	elif not employee.grade:
-		return 2
-	elif not employee.grade and not employee.expense_approver:
-		return 3
-	else:
-		return 0
-
 
 @frappe.whitelist()
 def report_to_person_view_travel_request_form(name,approving_officer):
@@ -136,3 +124,12 @@ def travel_request_form(name):
 			for user in accountant_users:
 				arr.append(user)
 			return arr
+	
+@frappe.whitelist()
+def get_employee_data(currentUserEmail):
+	if frappe.db.exists({"doctype": "Employee", "company_email": currentUserEmail}):
+		employee_data = frappe.get_doc("Employee", {"company_email": currentUserEmail})
+	else:
+		frappe.throw(("Employee Data Not Found" + "-" + str(currentUserEmail)))
+		employee_data = "None"
+	return employee_data
