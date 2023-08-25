@@ -90,7 +90,7 @@ def generate_accountant_notification(name,name_of_employee,status,approving_offi
 		user_name = approving_officer
 		notification_send_to_user(name,name_of_employee,status,user_name)
 
-	if status == "Approved":
+	if status == "Approved" or status == "Reject" or  status == "Return":
 		user_name = prepared_by
 		notification_send_to_user(name,name_of_employee,status,user_name)
 
