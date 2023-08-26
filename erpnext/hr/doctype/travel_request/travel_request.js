@@ -61,7 +61,6 @@ frappe.ui.form.on("Travel Request", {
 						currentUserEmail: currentUserEmail
 					},
 					callback: function(response){
-						// console.log(response.message);
 						var currentempployeeform = response.message
 						cur_frm.set_value("employee",currentempployeeform.name);
 						cur_frm.set_value("employee_name",currentempployeeform.employee_name);
@@ -132,7 +131,7 @@ frappe.ui.form.on("Travel Request", {
 				if (frm.doc.status == "To Be Check") {
 					cur_frm.disable_save();				
 				}		
-				if (frm.doc.status != "Cancel the Request" && cur_frm.doc.status != "Draft")
+				if (cur_frm.doc.status != "Cancelled Request" && doc.docstatus != 2  && cur_frm.doc.status != "Draft"  && cur_frm.doc.status != "Reject")
 				{
 					if (cur_frm.doc.status === "Approved"){
 						cur_frm.page.set_secondary_action(__('Cancel the Request'), () => cur_frm.events.cancel());
@@ -170,7 +169,6 @@ frappe.ui.form.on("Travel Request", {
 					name:cur_frm.doc.name,
 				},
 				callback :function(r){
-					console.log(r.message);
 					var accountantUsers = r.message;
 					var currentUserEmail = frappe.session.user;
 					
@@ -216,12 +214,28 @@ frappe.ui.form.on("Travel Request", {
 		d.show();
 	},
 	cancel: function(frm){
-		cur_frm.set_value("status", "Cancel the Request");
-		cur_frm.save();
-		cur_frm.events.send_notification_to_user(frm);
-		cur_frm.fields.forEach(function(field) {
-			cur_frm.set_df_property(field.df.fieldname, 'read_only', 1);
-		});
+		if (cur_frm.doc.status=== "Approved")
+		{
+			cur_frm._cancel();
+			cur_frm.events.send_notification_to_user(frm);
+		}
+		else{
+			frappe.confirm(
+			__('Permanently Cancel ' + cur_frm.docname + '?'),
+			function(){
+				cur_frm.set_value("status", "Cancelled Request");
+				cur_frm.save();
+				cur_frm.events.send_notification_to_user(frm);
+				cur_frm.fields.forEach(function(field) {
+					cur_frm.set_df_property(field.df.fieldname, 'read_only', 1);
+				});
+			},
+			function(){
+				window.close();
+			}
+		);
+		}
+
 	},
 	reject: function(frm){
 		cur_frm.set_value("status","Reject");

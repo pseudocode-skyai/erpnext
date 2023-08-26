@@ -21,6 +21,10 @@ class TravelRequest(Document):
 		if self.status != "Approved":
 			frappe.throw(("Document status must be 'Approved' before submitting."))
 
+	def on_cancel(self):
+		frappe.db.set_value("Travel Request", self.name, "status", "Cancelled Request")
+		self.reload()
+
 	def on_update(self):
 		if self.status == "Approved":
 			self.flags.ignore_permissions = True
@@ -90,7 +94,7 @@ def generate_accountant_notification(name,name_of_employee,status,approving_offi
 		user_name = approving_officer
 		notification_send_to_user(name,name_of_employee,status,user_name)
 
-	if status == "Approved" or status == "Reject" or  status == "Return":
+	if prepared_by != "":
 		user_name = prepared_by
 		notification_send_to_user(name,name_of_employee,status,user_name)
 
@@ -111,7 +115,7 @@ def notification_send_to_user(name,name_of_employee,status,user_name):
 		create_event.status = "Travel Form Reject"
 	elif status == "Return":
 		create_event.status = "Travel Form Return"
-	elif status == "Cancel the Request":
+	elif status == "Cancelled Request":
 		create_event.status = "Travel Form Cancel the Request"
 	create_event.insert(ignore_mandatory=True, ignore_permissions = True)
 
