@@ -2,7 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 
 from typing import Dict, Optional, Tuple
-
+from datetime import datetime
 import frappe
 from frappe import _
 from frappe.query_builder.functions import Max, Min, Sum
@@ -743,7 +743,8 @@ def get_number_of_leave_days(
 			number_of_days = date_diff(to_date, from_date) + 1
 
 	else:
-		number_of_days = date_diff(to_date, from_date) + 1
+		# number_of_days = date_diff(to_date, from_date) + 1 # erpnext code to calculate_user_leaves
+		number_of_days=calculate_user_leaves(to_date,from_date,employee)
 
 	if not frappe.db.get_value("Leave Type", leave_type, "include_holiday"):
 		number_of_days = flt(number_of_days) - flt(
@@ -751,7 +752,25 @@ def get_number_of_leave_days(
 		)
 	return number_of_days
 
+#sandwich leave Developement 
+@frappe.whitelist()
+def calculate_user_leaves(to_date, from_date,employee):
+	from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
+	to_date = datetime.strptime(to_date, "%Y-%m-%d").date()
+	employee_data = frappe.get_doc("Employee", {"name": employee})
+    
+	holiday_list = frappe.get_doc("Holiday List", {"name": employee_data.holiday_list})
 
+	holiday_details = []
+	for holiday in holiday_list.get("holidays"):
+		holiday_date = holiday.holiday_date
+
+		if from_date <= holiday_date <= to_date  and holiday.weekly_off == 0:
+			holiday_details.append(holiday_date)
+	holiday_count = len(holiday_details)
+	number_of_days = date_diff(to_date, from_date) + 1 - holiday_count
+	return number_of_days
+       
 @frappe.whitelist()
 def get_leave_details(employee, date):
 	allocation_records = get_leave_allocation_records(employee, date)
