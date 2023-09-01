@@ -27,4 +27,19 @@ frappe.get_indicator = function(doc, doctype) {
 	else if (doc.docstatus === 2 || doc.status === "Cancelled Request")  {
 		return [__("Cancelled Request"), "yellow", "status,=,Cancelled Request"];
 	}
+	else if (doc.docstatus === 0 || doc.status === "Advance Amount Processed")  {
+		return [__("Advance Amount Processed"), "pink", "status,=,Advance Amount Processed"];
+	}
+	else if (doc.docstatus === 0 || doc.status === "Ticket Booked")  {
+		return [__("Ticket Booked"), "green", "status,=,Ticket Booked"];
+	}
+	else if (doc.docstatus === 0 || doc.status === "Ticket Cancelled")  {
+		return [__("Ticket Cancelled"), "black", "status,=,Ticket Cancelled"];
+	}
 };
+frappe.listview_settings['Travel Request'] = {
+    hide_name_column: true,
+    onload: function(me) {
+		me.$page.find(`div[data-fieldname='name']`).addClass('hide');
+    },
+}

@@ -5,6 +5,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "ticket_book",
+  "column_break_21",
+  "advance_processed",
+  "section_break_74",
   "travel_type",
   "status",
   "travel_funding",
@@ -29,14 +33,20 @@
   "approved_by",
   "column_break_22",
   "checked_by",
-  "column_break_25",
   "checker_name",
+  "column_break_25",
+  "administrative_officer",
+  "administrative_officer_name",
   "user_remark_section",
   "user_remark",
   "checker_remark_section",
-  "check_remark",
+  "travel_request_accountant_remark_table",
   "approver_remark_section",
-  "remark",
+  "travel_request_hod_remark_table",
+  "admin_officer_remark_section",
+  "admin_remark",
+  "column_break_41",
+  "ticket_attachment",
   "prepared_by",
   "employee_details",
   "cell_number",
@@ -59,6 +69,7 @@
   "name_of_organizer",
   "address_of_organizer",
   "other_details",
+  "application_id",
   "amended_from"
  ],
  "fields": [
@@ -94,16 +105,10 @@
    "allow_on_submit": 1,
    "fieldname": "status",
    "fieldtype": "Select",
+   "hidden": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nDraft\nTo Be Approved\nTo Be Check\nApproved\nReject\nReturn\nCancelled Request",
-   "reqd": 1
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "remark",
-   "fieldtype": "Small Text",
-   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Approval Role') || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\""
+   "options": "\nDraft\nTo Be Approved\nTo Be Check\nApproved\nReject\nReturn\nCancelled Request\nAdvance Amount Processed\nTicket Booked\nTicket Cancelled"
   },
   {
    "fieldname": "travel_type",
@@ -344,7 +349,7 @@
    "fieldtype": "Small Text"
   },
   {
-   "depends_on": "eval:doc.remark != null\n&& (doc.status == \"Approved\" ||doc.status ==\"Cancel the Request\")",
+   "collapsible_depends_on": "eval:doc.travel_request_hod_remark_table.length != 0",
    "fieldname": "approver_remark_section",
    "fieldtype": "Section Break",
    "label": "Approver Remark"
@@ -364,18 +369,9 @@
    "read_only": 1
   },
   {
-   "bold": 1,
-   "depends_on": "eval:doc.status != \"Draft\" && doc.check_remark != null",
+   "collapsible_depends_on": "eval:doc.travel_request_accountant_remark_table.length != 0",
    "fieldname": "checker_remark_section",
-   "fieldtype": "Section Break",
-   "label": "Checker Remark"
-  },
-  {
-   "allow_on_submit": 1,
-   "depends_on": "eval: doc.check_remark != null",
-   "fieldname": "check_remark",
-   "fieldtype": "Small Text",
-   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Check Role')  || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\" || doc.status ==\"Cancel the Request\""
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "from_date",
@@ -402,12 +398,99 @@
    "fieldtype": "Data",
    "label": "Checker Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "application_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Application ID"
+  },
+  {
+   "fieldname": "travel_request_hod_remark_table",
+   "fieldtype": "Table",
+   "options": "Travel Request HOD Remark Table",
+   "read_only": 1,
+   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Approval Role') || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\""
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "travel_request_accountant_remark_table",
+   "fieldtype": "Table",
+   "label": "Checker Remark",
+   "options": "Travel Request Accountant Remark Table",
+   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Check Role') || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\""
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "administrative_officer",
+   "fieldtype": "Link",
+   "label": "Administrative Officer",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fetch_from": "administrative_officer.full_name",
+   "fieldname": "administrative_officer_name",
+   "fieldtype": "Data",
+   "label": "Administrative Officer Name",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "depends_on": "eval:doc.ticket_book === 1",
+   "fieldname": "ticket_book",
+   "fieldtype": "Check",
+   "label": "Ticket booked",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "depends_on": "eval:doc.advance_processed === 1",
+   "fieldname": "advance_processed",
+   "fieldtype": "Check",
+   "label": "Advance Processed",
+   "read_only": 1
+  },
+  {
+   "collapsible_depends_on": "eval:doc.admin_remark != null",
+   "depends_on": "eval:doc.admin_remark != null",
+   "fieldname": "admin_officer_remark_section",
+   "fieldtype": "Section Break",
+   "label": "Admin Officer Remark"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "admin_remark",
+   "fieldtype": "Small Text",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_41",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.ticket_book ===1",
+   "fieldname": "ticket_attachment",
+   "fieldtype": "Attach",
+   "label": "Ticket Attachment"
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_74",
+   "fieldtype": "Section Break"
   }
  ],
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-26 08:32:04.212107",
+ "modified": "2023-09-01 09:00:08.438082",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",
@@ -428,5 +511,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "application_id",
  "track_changes": 1
 }

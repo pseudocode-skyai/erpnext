@@ -139,6 +139,11 @@ frappe.ui.form.on("Travel Request", {
 						cur_frm.add_custom_button(__('Cancel the Request'), () => cur_frm.events.cancel());
 					}
 				}
+				if(cur_frm.doc.admin_remark) {
+					cur_frm.set_df_property("admin_remark", 'read_only', 1);
+					cur_frm.set_df_property("ticket_attachment", 'read_only', 0);
+					frm.fields_dict.ticket_attachment.$wrapper.find('[data-action="clear_attachment"]').hide();
+				}
 		
 			}
 
@@ -160,6 +165,11 @@ frappe.ui.form.on("Travel Request", {
 					cur_frm.add_custom_button(__('Reject'), () => cur_frm.events.reject(), __("Status"));
 				}		
 			}	
+			if(cur_frm.doc.admin_remark) {
+				cur_frm.set_df_property("admin_remark", 'read_only', 1);
+				cur_frm.set_df_property("ticket_attachment", 'read_only', 0);
+				frm.fields_dict.ticket_attachment.$wrapper.find('[data-action="clear_attachment"]').hide();
+			}
 
 		}
 		frappe.call({                        
@@ -171,14 +181,50 @@ frappe.ui.form.on("Travel Request", {
 				callback :function(r){
 					var accountantUsers = r.message;
 					var currentUserEmail = frappe.session.user;
-					
+				
+
 					if (accountantUsers) {
 						for (var i = 0; i < accountantUsers.length; i++) {
 							if (currentUserEmail === accountantUsers[i].name) {
 								if (doc.status == "To Be Check" ){
 									cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 								}
+								if (cur_frm.doc.status != "Advance Amount Processed" && (cur_frm.doc.status === "Approved" ||  cur_frm.doc.status === "Ticket Booked" || cur_frm.doc.status === "Ticket Cancelled"))
+									cur_frm.add_custom_button(__('Advance Processed'), () => cur_frm.events.advance_amount_processed());
+
+								if(cur_frm.doc.admin_remark) {
+									cur_frm.set_df_property("admin_remark", 'read_only', 1);
+									cur_frm.set_df_property("ticket_attachment", 'read_only', 0);
+									frm.fields_dict.ticket_attachment.$wrapper.find('[data-action="clear_attachment"]').hide();
+								}
 							}
+						}
+					}
+				}	 
+		 });
+		frappe.call({                        
+			method: "erpnext.hr.doctype.travel_request.travel_request.travel_request_form_officer", 
+			async:false,
+			args: { 
+					name:cur_frm.doc.name,
+				},
+				callback :function(r){
+					var administrative_officer = r.message;
+					var currentUserEmail = frappe.session.user;
+					
+					if (administrative_officer) {
+						for (var i = 0; i < administrative_officer.length; i++) {
+							if (currentUserEmail === administrative_officer[i].name) {
+								if (cur_frm.doc.status != "Ticket Booked" && (cur_frm.doc.status === "Approved" || cur_frm.doc.status === "Advance Amount Processed"))
+								cur_frm.add_custom_button(__('Ticket book'), () => cur_frm.events.ticket_booked());
+								if (cur_frm.doc.status === "Ticket Booked" && cur_frm.doc.status != "Ticket Cancelled")
+								cur_frm.add_custom_button(__('Ticket Cancel'), () => cur_frm.events.ticket_cancel());
+								if(cur_frm.doc.admin_remark) {
+									cur_frm.set_df_property("admin_remark", 'read_only', 0);
+									cur_frm.set_df_property("ticket_attachment", 'read_only', 0);
+								}
+							}
+							
 						}
 					}
 				}	 
@@ -186,29 +232,175 @@ frappe.ui.form.on("Travel Request", {
 		if (cur_frm.doc.status=="To Be Check" && cur_frm.doc.check_remark ){
 			cur_frm.events.check_remark(frm);
 		}
+
+
 	},
-	checking: function(frm){
-		
+
+	admin_remark: function(frm){
+		if (cur_frm.doc.admin_remark != ""){
+			frappe.call({
+				method:"erpnext.hr.doctype.travel_request.travel_request.admin_remark",
+				args: {docname: cur_frm.doc.name,
+					admin_remark:cur_frm.doc.admin_remark
+				}
+			})
+			setTimeout(function(){
+				window.location.reload(1);
+			}, 500);
+		}
+	},
+	advance_amount_processed: function(frm) {	
 		let d = new frappe.ui.Dialog({
-			title: 'Remark',
+			title: 'Accountant Remark',
 			fields: [
 				{
-					label: 'Remark',
+					fieldname: 'remark',
+					fieldtype: 'Small Text',
+					"reqd": 1,
+				},
+			],
+			primary_action_label: 'Submit',
+			primary_action(value) {
+				d.hide();
+				frappe.call({
+					method:"erpnext.hr.doctype.travel_request.travel_request.update_remarks_and_status",
+					args: {docname: cur_frm.doc.name,
+						remark:value["remark"],
+						name_of_employee : cur_frm.doc.employee_name,
+						approving_officer :cur_frm.doc.approved_by,
+						prepared_by :cur_frm.doc.prepared_by
+					}
+                })
+				cur_frm.reload_doc();
+
+			}
+		});
+		d.show();
+
+	},
+	
+	ticket_attachment:function(frm){
+		if (cur_frm.doc.ticket_attachment === ""){
+			frappe.call({
+				async:false,
+				method:"erpnext.hr.doctype.travel_request.travel_request.ticket_attachment_update",
+				args: {docname: cur_frm.doc.name,
+					ticket_attachment:""
+				}
+			})
+			window.location.reload(1);
+		}
+		else{
+			frappe.call({
+				async:false,
+				method:"erpnext.hr.doctype.travel_request.travel_request.ticket_attachment_update",
+				args: {docname: cur_frm.doc.name,
+					ticket_attachment:cur_frm.doc.ticket_attachment
+
+				}
+				
+			})
+			window.location.reload(1);
+
+		}
+	},
+	ticket_cancel: function(frm){
+		let d = new frappe.ui.Dialog({
+			title: 'Admin Officer Remark',
+			fields: [
+				{
+					label:"Remark",
+					fieldname: 'remark',
+					fieldtype: 'Small Text',
+					"reqd": 1,
+				},
+			],
+			primary_action_label: 'Submit',
+			primary_action(value) {
+				d.hide();
+				frappe.call({
+					method:"erpnext.hr.doctype.travel_request.travel_request.ticket_cancelled",
+					args: {docname: cur_frm.doc.name,
+						remark:value["remark"]
+					}
+				})
+				cur_frm.cscript.update_status("Ticket Cancelled");
+				cur_frm.save();
+		
+
+			}
+		});
+		d.show();
+
+	},
+
+	ticket_booked: function(frm){
+		let d = new frappe.ui.Dialog({
+			title: 'Admin Officer Remark',
+			fields: [
+				{
+					label:"Remark",
+					fieldname: 'remark',
+					fieldtype: 'Small Text',
+					"reqd": 1,
+				},
+				{
+					label:"Ticket Attachment",
+					fieldname: 'ticket_attachment',
+					fieldtype: 'Attach',
+					"reqd": 1,
+
+				},
+			],
+			primary_action_label: 'Submit',
+			primary_action(value) {
+				d.hide();
+				var currentUserEmail = frappe.session.user;
+				cur_frm.set_value("administrative_officer",currentUserEmail);
+				cur_frm.set_value("administrative_officer_name", frappe.user.full_name());
+				frappe.call({
+					async:false,
+
+					method:"erpnext.hr.doctype.travel_request.travel_request.ticket_booked",
+					args: {docname: cur_frm.doc.name,
+						remark:value["remark"],
+						ticket_attachment:value["ticket_attachment"],
+						administrative_officer:currentUserEmail,
+						administrative_officer_name:frappe.user.full_name()
+					}
+				})
+				
+
+				cur_frm.cscript.update_status("Ticket Booked");
+				cur_frm.save()
+			}
+		});
+		d.show();
+
+	},
+	checking: function(frm){
+		let travel_request_accountant_remark_table  = cur_frm.add_child("travel_request_accountant_remark_table");
+
+		let d = new frappe.ui.Dialog({
+			title: 'Checker Remark',
+			fields: [
+				{
 					fieldname: 'remark',
 					fieldtype: 'Small Text'
 				},
 			],
 			primary_action_label: 'Submit',
-			primary_action(values) {
+			primary_action(value) {
 				cur_frm.set_value("status","To Be Approved");
-				cur_frm.set_value('check_remark', (values["remark"]));
-				cur_frm.refresh_field('check_remark');
+				var today = frappe.datetime.now_date();
+				travel_request_accountant_remark_table.remark = (value["remark"]);
+				travel_request_accountant_remark_table.date = (today);
+				travel_request_accountant_remark_table.status = ("To Be Approved");
 				d.hide();
 				var currentUserEmail = frappe.session.user;
 				cur_frm.set_value("checked_by",currentUserEmail);
 				cur_frm.save();
-				cur_frm.events.send_notification_to_user(frm);
-				cur_frm.reload();	
+				cur_frm.events.send_notification_to_user(frm);	
 			}
 		});
 		d.show();
@@ -238,23 +430,72 @@ frappe.ui.form.on("Travel Request", {
 
 	},
 	reject: function(frm){
-		cur_frm.set_value("status","Reject");
-		cur_frm.save();
-		cur_frm.events.send_notification_to_user(frm);
+		let travel_request_hod_remark_table  = cur_frm.add_child("travel_request_hod_remark_table");
 
-		cur_frm.fields.forEach(function(field) {
-			frm.set_df_property(field.df.fieldname, 'read_only', 1);
+		let d = new frappe.ui.Dialog({
+			
+			title: 'Reject Remark',
+			fields: [
+				{
+					fieldname: 'remark',
+					fieldtype: 'Small Text',
+					"reqd": 1,
+				},
+			],
+			primary_action_label: 'Submit',
+			primary_action(value) {
+				d.hide();
+				var today = frappe.datetime.now_date();
+				travel_request_hod_remark_table.remark = (value["remark"]);
+				travel_request_hod_remark_table.date = (today);
+				travel_request_hod_remark_table.status = ("Reject");
+				refresh_field("travel_request_hod_remark_table");
+			
+				cur_frm.set_value("status","Reject");
+				cur_frm.save();
+				cur_frm.events.send_notification_to_user(frm);
+				cur_frm.fields.forEach(function(field) {
+					frm.set_df_property(field.df.fieldname, 'read_only', 1);
+				});
+				setTimeout(function(){
+					window.location.reload(1);
+				}, 500);
+			}
 		});
-		setTimeout(function(){
-			window.location.reload(1);
-		}, 500);
+		d.show();
 	},
 	return: function(frm){
-		cur_frm.set_value("status","Return");
-		cur_frm.save();
-		cur_frm.events.send_notification_to_user(frm);
+		let travel_request_hod_remark_table  = cur_frm.add_child("travel_request_hod_remark_table");
+
+		let d = new frappe.ui.Dialog({
+			
+			title: 'Remark',
+			fields: [
+				{
+					fieldname: 'remark',
+					fieldtype: 'Small Text',
+					"reqd": 1,
+				},
+			],
+			primary_action_label: 'Submit',
+			primary_action(value) {
+				d.hide();
+				var today = frappe.datetime.now_date();
+				travel_request_hod_remark_table.remark = (value["remark"]);
+				travel_request_hod_remark_table.date = (today);
+				travel_request_hod_remark_table.status = ("Return");
+				refresh_field("travel_request_hod_remark_table");
+			
+				cur_frm.set_value("status","Return");
+				cur_frm.save();
+				cur_frm.events.send_notification_to_user(frm);
+			}
+		});
+		d.show();
 	},
 	approved: function(frm){
+		let travel_request_hod_remark_table  = cur_frm.add_child("travel_request_hod_remark_table");
+
 		let d = new frappe.ui.Dialog({
 			title: 'Approved Expenses By HOD',
 			fields: [
@@ -268,12 +509,24 @@ frappe.ui.form.on("Travel Request", {
 			primary_action_label: 'Submit',
 			primary_action(values) {
 				d.hide();
+				var date = frappe.datetime.now_date();
+				travel_request_hod_remark_table.remark = (values["remark"]);
+				travel_request_hod_remark_table.date = (date);
+				travel_request_hod_remark_table.status = ("Approved");
+				refresh_field("travel_request_hod_remark_table");
+
 				cur_frm.set_value("status","Approved");
-				cur_frm.set_value('remark', (values["remark"]));
-				cur_frm.refresh_field('remark');
+				frappe.call({ 
+					async:false,                       
+					method: "erpnext.hr.doctype.travel_request.travel_request.view_travel_request_form_admin_user", 
+					async:false,
+					args: { 
+							name:cur_frm.doc.name,
+						},	 
+				 });
 				cur_frm.save();
 				cur_frm.events.send_notification_to_user(frm);
-				cur_frm.reload();	
+				window.location.reload(1);
 			}
 		});
 		d.show();
@@ -335,6 +588,15 @@ frappe.ui.form.on("Travel Request", {
 				
 			};
 		});
+		frm.set_query('administrative_officer', function(doc) {
+			return {
+				filters: {
+					"designation": "Administrative Officer",
+					"user": doc.user
+				},
+				
+			};
+		});
 
 	},
 	send_notification_to_user:function(frm){
@@ -390,3 +652,55 @@ frappe.ui.form.on("Travel Requisition", {
 	},
 	
 });
+
+cur_frm.cscript.update_status = function(status) {
+	frappe.ui.form.is_saving = true;
+	
+	frappe.call({
+		method:"erpnext.hr.doctype.travel_request.travel_request.update_status",
+		async:false,
+		args: {docname: cur_frm.doc.name, status: status,
+			name_of_employee : cur_frm.doc.employee_name,
+			approving_officer :cur_frm.doc.approved_by,
+			prepared_by :cur_frm.doc.prepared_by
+		},
+		callback: function(r){
+
+			if(!r.exc){
+				cur_frm.reload_doc();
+				// window.location.reload(1);
+
+			}
+		},
+		always: function(){
+			frappe.ui.form.is_saving = false;
+		}
+	})
+}
+
+frappe.ui.form.on("Travel Request Accountant Remark Table", {
+	remark:function(frm,cdt,cdn) {
+		var d = locals[cdt][cdn];
+		frappe.call({                        
+			method: "erpnext.hr.doctype.travel_request.travel_request.travel_request_form", 
+			async:false,
+			args: { 
+					name:cur_frm.doc.name,
+				},
+				callback :function(r){
+					var accountantUsers = r.message;
+					var currentUserEmail = frappe.session.user;
+					var emails = accountantUsers.map(user => user.name);
+					if (emails.includes(currentUserEmail)) {
+						cur_frm.set_df_property(d.remark, 'read_only', 0);
+						cur_frm.enable_save();
+					} else {
+						cur_frm.set_df_property(d.remark, 'read_only', 1);
+					}
+		
+				}	 
+		 });
+	}
+})
+
+
