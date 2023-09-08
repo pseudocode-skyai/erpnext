@@ -418,6 +418,7 @@
    "fieldtype": "Table",
    "label": "Checker Remark",
    "options": "Travel Request Accountant Remark Table",
+   "read_only": 1,
    "read_only_depends_on": "eval:!frappe.user.has_role('Travel Check Role') || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\""
   },
   {
@@ -490,7 +491,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-01 09:00:08.438082",
+ "modified": "2023-09-04 15:19:46.500456",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",

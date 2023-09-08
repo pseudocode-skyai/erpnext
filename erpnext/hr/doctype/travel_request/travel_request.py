@@ -9,10 +9,9 @@ from erpnext.hr.utils import validate_active_employee
 from frappe.core.doctype.user.user import share_doc_with_approver
 from frappe.utils import now_datetime
 
-
 class TravelRequest(Document):
 	def autoname(self):
-		self.name =  make_autoname(self.employee + "/" +(str(self.from_date)) + "/" + ".##")
+		self.name =  make_autoname(self.employee + "-" +(str(self.from_date))+ "-" + ".##")
 		self.requition_no = make_autoname(self.employee_name + "-.##")
         
 	def validate(self):
@@ -217,3 +216,30 @@ def ticket_booked(docname,remark,ticket_attachment,administrative_officer,admini
 	frappe.db.set_value("Travel Request", docname, "ticket_book", 1)
 	frappe.db.set_value("Travel Request", docname, "administrative_officer", administrative_officer)
 	frappe.db.set_value("Travel Request", docname, "administrative_officer_name", administrative_officer_name)
+
+import frappe
+from fpdf import FPDF
+from io import BytesIO
+
+@frappe.whitelist()
+def your_custom_method_to_generate_pdf(docname):
+    # Fetch the data based on the provided docname or any other criteria
+    # Example: Fetch data from the Travel Request doctype
+    travel_request = frappe.get_doc("Travel Request", docname)
+    
+    # Create a PDF document
+    # pdf = FPDF()
+    # pdf.add_page()
+    # pdf.set_font("Arial", size=12)
+
+    # Create a BytesIO object to store the PDF data
+    # pdf_buffer = BytesIO()
+    # pdf_buffer.write(pdf.output(dest='S').encode('latin1'))
+    
+    # Send the PDF as a response for download
+    frappe.local.response.filename = f"Travel_Request_{docname}.pdf"
+    # frappe.local.response.filecontent = pdf_buffer.getvalue()
+    frappe.local.response.type = "download"
+
+    # # Close the BytesIO buffer
+    # pdf_buffer.close()
