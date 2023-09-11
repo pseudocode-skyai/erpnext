@@ -704,136 +704,44 @@ frappe.ui.form.on("Travel Request Accountant Remark Table", {
 })
 frappe.ui.form.on('Travel Request', {
     refresh: function(frm) {
-		frm.add_custom_button(__('Zip File Download'), function() {
-			const formData = cur_frm.doc;
-			const currentURL = window.location.href;
-			const url = new URL(currentURL);
-			const port= `${url.protocol}//${url.host}/`;
-			const baseUrl = `${port}api/method/frappe.utils.print_format.download_pdf?`;
-			const encodedDoctype = encodeURIComponent(formData.doctype);
-			const encodedName = encodeURIComponent(formData.name);
-			const pdfUrl = `${baseUrl}doctype=${encodedDoctype}&name=${encodedName}` +
-			'&format=Standard' +'&no_letterhead=1' +'&letterhead=No%20Letterhead' +'&settings=%7B%7D' +'&_lang=en-US';
-			
-			var arr = [];
-			
-			// if (cur_frm.doc.attach) {
-			// 	var parts = cur_frm.doc.attach.split('/');
-			// 	var fileName = parts[parts.length - 1];
-			// 	arr.push(fileName);
-			// }
-			// if (cur_frm.doc.bill_attach) {
-			// 	var parts = cur_frm.doc.bill_attach.split('/');
-			// 	var fileName = parts[parts.length - 1];
-			// 	arr.push(fileName);
-			// }
-			if (formData.vehicle_reimbursement_table && formData.vehicle_reimbursement_table.length > 0) {
-				formData.vehicle_reimbursement_table.forEach(row => {
-					if (row.toll_bill_attachment) {
-						var parts = row.toll_bill_attachment.split('/');
-						var fileName = parts[parts.length - 1];
-						arr.push(fileName);
-                    }
-					if (row.bill_attachment) {
-						var parts = row.bill_attachment.split('/');
-						var fileName = parts[parts.length - 1];
-						arr.push(fileName);
-					}
-                });
-            }
-                // Log attachment URLs for debugging
-            console.log('Attachment URLs:', arr);
-		
-			frappe.call({
-				method: "frappe.core.doctype.file.file.zip_files",
-				args: {
-					files: JSON.stringify(arr) // Provide the full file path as a JSON string
-				},
-				callback: function(response) {
-					if (response.message) {
-						// Create a JSZip instance to create a ZIP archive
-						fetch(pdfUrl)
-						.then(response => response.blob())
-						.then(pdfBlob => {
-							loadJSZip().then(() => {
-								const zip = new JSZip();
-								zip.file(`${formData.name}.pdf`,pdfBlob);	
-									
+		if(cur_frm.doc.status != "Draft"){
+			frm.add_custom_button(__('Zip File Download'), function() {
+				const formData = cur_frm.doc;
+				const currentURL = window.location.href;
+				const url = new URL(currentURL);
+				const port= `${url.protocol}//${url.host}/`;
+				const baseUrl = `${port}api/method/frappe.utils.print_format.download_pdf?`;
+				const encodedDoctype = encodeURIComponent(formData.doctype);
+				const encodedName = encodeURIComponent(formData.name);
+				const pdfUrl = `${baseUrl}doctype=${encodedDoctype}&name=${encodedName}` +
+				'&format=Standard' +'&no_letterhead=1' +'&letterhead=No%20Letterhead' +'&settings=%7B%7D' +'&_lang=en-US';
+				fetch(pdfUrl)
+				.then(response => response.blob())
+				.then(pdfBlob => {
+					loadJSZip().then(() => {
+						const zip = new JSZip();
+						zip.file(`${formData.name}.pdf`,pdfBlob);	
 							
-								zip.generateAsync({ type: 'blob' }).then(content => {
-									// Create a download link for the ZIP file
-									const url = window.URL.createObjectURL(content);
-									var a = document.createElement('a');
-									a.href = url;
-									a.download = `Vehicle Reimbursement-${formData.name}.zip`;
-									a.style.display = 'none';
-									document.body.appendChild(a);
-									a.click();
-									document.body.removeChild(a);
-									window.URL.revokeObjectURL(url);
-								});
-
-							})
-			
-					});
-					} else {
-						console.log("Error: Unable to download ZIP file");
-					}
-				}
-			});
-		});	
-    
-
-        // frm.add_custom_button(__('Zip File Download'), function() {
-        //     // Function to trigger the download
-        //     const formData = cur_frm.doc;
-        //     createZipDownloadPage(formData);
-        // });
+						zip.generateAsync({ type: 'blob' }).then(content => {
+							// Create a download link for the ZIP file
+							const url = window.URL.createObjectURL(content);
+							var a = document.createElement('a');
+							a.href = url;
+							a.download = `Travel Request-${formData.name}.zip`;
+							a.style.display = 'none';
+							document.body.appendChild(a);
+							a.click();
+							document.body.removeChild(a);
+							window.URL.revokeObjectURL(url);
+						});
+	
+					})
+				});	
+			});	
+		}
+		
     }
 });
-
-function createZipDownloadPage(formData) {
-	const currentURL = window.location.href;
-	const url = new URL(currentURL);
-	const port= `${url.protocol}//${url.host}/`;
-
-	const baseUrl = `${port}api/method/frappe.utils.print_format.download_pdf?`;
-    const encodedDoctype = encodeURIComponent(formData.doctype);
-    const encodedName = encodeURIComponent(formData.name);
-    const pdfUrl = `${baseUrl}doctype=${encodedDoctype}&name=${encodedName}` +
-        '&format=Standard' +
-        '&no_letterhead=1' +
-        '&letterhead=No%20Letterhead' +
-        '&settings=%7B%7D' +
-        '&_lang=en-US';
-
-    fetch(pdfUrl)
-        .then(response => response.blob())
-        .then(pdfBlob => {
-            // Create a ZIP archive and add the PDF file
-            loadJSZip().then(() => {
-                const zip = new JSZip();
-                zip.file(`${formData.name}.pdf`, pdfBlob);
-				zip.generateAsync({ type: 'blob' }).then(content => {
-					// Create a download link for the ZIP file
-					const url = window.URL.createObjectURL(content);
-					var a = document.createElement('a');
-					a.href = url;
-					a.download = `Travel Request-${formData.name}.zip`;
-					a.style.display = 'none';
-					document.body.appendChild(a);
-					a.click();
-					document.body.removeChild(a);
-					window.URL.revokeObjectURL(url);
-				});
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching PDF:', error);
-        });
-}
-
-
 
 function loadJSZip() {
     return new Promise((resolve, reject) => {

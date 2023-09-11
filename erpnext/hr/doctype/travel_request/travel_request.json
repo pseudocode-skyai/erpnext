@@ -341,18 +341,17 @@
   {
    "bold": 1,
    "fieldname": "user_remark_section",
-   "fieldtype": "Section Break",
-   "label": "User Remark"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "user_remark",
-   "fieldtype": "Small Text"
+   "fieldtype": "Small Text",
+   "label": "User Remark"
   },
   {
    "collapsible_depends_on": "eval:doc.travel_request_hod_remark_table.length != 0",
    "fieldname": "approver_remark_section",
-   "fieldtype": "Section Break",
-   "label": "Approver Remark"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "checked_by",
@@ -408,6 +407,7 @@
   {
    "fieldname": "travel_request_hod_remark_table",
    "fieldtype": "Table",
+   "label": "Approver Remark",
    "options": "Travel Request HOD Remark Table",
    "read_only": 1,
    "read_only_depends_on": "eval:!frappe.user.has_role('Travel Approval Role') || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\""
@@ -491,7 +491,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-04 15:19:46.500456",
+ "modified": "2023-09-11 14:36:42.134304",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",
