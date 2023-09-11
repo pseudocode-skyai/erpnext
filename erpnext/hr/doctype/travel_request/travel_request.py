@@ -168,8 +168,6 @@ def travel_request_form_officer(name):
 				arr.append(user)
 			return arr
 	
-
-
 @frappe.whitelist()
 def ticket_attachment_update(docname,ticket_attachment):
 	frappe.db.set_value("Travel Request", docname, "ticket_attachment", ticket_attachment)
@@ -178,8 +176,6 @@ def ticket_attachment_update(docname,ticket_attachment):
 @frappe.whitelist()
 def update_admin_remark(docname,admin_remark):
 	frappe.db.set_value("Travel Request", docname, "admin_remark", admin_remark)
-
-
 
 @frappe.whitelist()
 def update_status(docname, status,name_of_employee,approving_officer,prepared_by):
@@ -198,9 +194,6 @@ def update_remarks_and_status(docname,name_of_employee,remark,approving_officer,
 	frappe.db.set_value("Travel Request", docname, "advance_processed", 1)
 	update_status(docname,status,name_of_employee,approving_officer,prepared_by)
 
-
-
-
 @frappe.whitelist()
 def ticket_cancelled(docname,remark):
 	frappe.db.set_value("Travel Request", docname, "admin_remark", remark)
@@ -216,30 +209,3 @@ def ticket_booked(docname,remark,ticket_attachment,administrative_officer,admini
 	frappe.db.set_value("Travel Request", docname, "ticket_book", 1)
 	frappe.db.set_value("Travel Request", docname, "administrative_officer", administrative_officer)
 	frappe.db.set_value("Travel Request", docname, "administrative_officer_name", administrative_officer_name)
-
-import frappe
-from fpdf import FPDF
-from io import BytesIO
-
-@frappe.whitelist()
-def your_custom_method_to_generate_pdf(docname):
-    # Fetch the data based on the provided docname or any other criteria
-    # Example: Fetch data from the Travel Request doctype
-    travel_request = frappe.get_doc("Travel Request", docname)
-    
-    # Create a PDF document
-    # pdf = FPDF()
-    # pdf.add_page()
-    # pdf.set_font("Arial", size=12)
-
-    # Create a BytesIO object to store the PDF data
-    # pdf_buffer = BytesIO()
-    # pdf_buffer.write(pdf.output(dest='S').encode('latin1'))
-    
-    # Send the PDF as a response for download
-    frappe.local.response.filename = f"Travel_Request_{docname}.pdf"
-    # frappe.local.response.filecontent = pdf_buffer.getvalue()
-    frappe.local.response.type = "download"
-
-    # # Close the BytesIO buffer
-    # pdf_buffer.close()

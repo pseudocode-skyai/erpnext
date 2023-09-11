@@ -232,8 +232,37 @@ frappe.ui.form.on("Travel Request", {
 		if (cur_frm.doc.status=="To Be Check" && cur_frm.doc.check_remark ){
 			cur_frm.events.check_remark(frm);
 		}
+		if(!frm.doc.__islocal && cur_frm.doc.status != "Draft"){
+			frm.add_custom_button(__('Download Attachment'), function() {
+				const formData = cur_frm.doc;
+				const url = new URL(window.location.href);
+				const pdfUrl = `${ `${`${url.protocol}//${url.host}/`}api/method/frappe.utils.print_format.download_pdf?`}doctype=${encodeURIComponent(formData.doctype)}&name=${encodeURIComponent(formData.name)}` +
+				'&format=Standard' +'&no_letterhead=1' +'&letterhead=No%20Letterhead' +'&settings=%7B%7D' +'&_lang=en-US';
 
-
+				fetch(pdfUrl)
+				.then(response => response.blob())
+				.then(pdfBlob => {
+					loadJSZip().then(() => {
+						const zip = new JSZip();
+						zip.file(`${formData.name}.pdf`,pdfBlob);	
+							
+						zip.generateAsync({ type: 'blob' }).then(content => {
+							// Create a download link for the ZIP file
+							const url = window.URL.createObjectURL(content);
+							var a = document.createElement('a');
+							a.href = url;
+							a.download = `Travel Request-${formData.name}.zip`;
+							a.style.display = 'none';
+							document.body.appendChild(a);
+							a.click();
+							document.body.removeChild(a);
+							window.URL.revokeObjectURL(url);
+						});
+	
+					})
+				});	
+			});	
+		}
 	},
 
 	admin_remark: function(frm){
@@ -271,12 +300,12 @@ frappe.ui.form.on("Travel Request", {
 						prepared_by :cur_frm.doc.prepared_by
 					}
                 })
-				cur_frm.reload_doc();
-
+				setTimeout(function(){
+					window.location.reload(1);
+				}, 500);
 			}
 		});
 		d.show();
-
 	},
 	
 	ticket_attachment:function(frm){
@@ -298,10 +327,8 @@ frappe.ui.form.on("Travel Request", {
 					ticket_attachment:cur_frm.doc.ticket_attachment
 
 				}
-				
 			})
 			window.location.reload(1);
-
 		}
 	},
 	ticket_cancel: function(frm){
@@ -326,8 +353,6 @@ frappe.ui.form.on("Travel Request", {
 				})
 				cur_frm.cscript.update_status("Ticket Cancelled");
 				cur_frm.save();
-		
-
 			}
 		});
 		d.show();
@@ -369,8 +394,6 @@ frappe.ui.form.on("Travel Request", {
 						administrative_officer_name:frappe.user.full_name()
 					}
 				})
-				
-
 				cur_frm.cscript.update_status("Ticket Booked");
 				cur_frm.save()
 			}
@@ -427,7 +450,6 @@ frappe.ui.form.on("Travel Request", {
 			}
 		);
 		}
-
 	},
 	reject: function(frm){
 		let travel_request_hod_remark_table  = cur_frm.add_child("travel_request_hod_remark_table");
@@ -561,7 +583,6 @@ frappe.ui.form.on("Travel Request", {
 					} else {
 						cur_frm.set_df_property('check_remark', 'read_only', 1);
 					}
-
 				}	 
 		 });
 	},
@@ -575,7 +596,6 @@ frappe.ui.form.on("Travel Request", {
 			frm.doc.from_date = '';
             frm.refresh_field('from_date');
             frappe.throw('From Date must be less than or equal to To Date');
-  
         }
     },
 	setup:function(frm){
@@ -585,7 +605,6 @@ frappe.ui.form.on("Travel Request", {
 					"designation": "Accountant",
 					"user": doc.user
 				},
-				
 			};
 		});
 		frm.set_query('administrative_officer', function(doc) {
@@ -594,10 +613,8 @@ frappe.ui.form.on("Travel Request", {
 					"designation": "Administrative Officer",
 					"user": doc.user
 				},
-				
 			};
 		});
-
 	},
 	send_notification_to_user:function(frm){
 		frappe.call({                        
@@ -621,12 +638,10 @@ frappe.ui.form.on("Travel Requisition", {
 			cur_frm.disable_save();
 			frappe.model.set_value(cdt, cdn, 'date', null);
 			frappe.throw(__("Date must be equal to or between Form date and End date"));
-			
 		}else{
 			cur_frm.enable_save();
 		}
 		}
-	
 	},
 	mode:function(frm,cdt,cdn) {
 		var d = locals[cdt][cdn];
@@ -669,7 +684,6 @@ cur_frm.cscript.update_status = function(status) {
 			if(!r.exc){
 				cur_frm.reload_doc();
 				// window.location.reload(1);
-
 			}
 		},
 		always: function(){
@@ -702,47 +716,6 @@ frappe.ui.form.on("Travel Request Accountant Remark Table", {
 		 });
 	}
 })
-frappe.ui.form.on('Travel Request', {
-    refresh: function(frm) {
-		if(cur_frm.doc.status != "Draft"){
-			frm.add_custom_button(__('Zip File Download'), function() {
-				const formData = cur_frm.doc;
-				const currentURL = window.location.href;
-				const url = new URL(currentURL);
-				const port= `${url.protocol}//${url.host}/`;
-				const baseUrl = `${port}api/method/frappe.utils.print_format.download_pdf?`;
-				const encodedDoctype = encodeURIComponent(formData.doctype);
-				const encodedName = encodeURIComponent(formData.name);
-				const pdfUrl = `${baseUrl}doctype=${encodedDoctype}&name=${encodedName}` +
-				'&format=Standard' +'&no_letterhead=1' +'&letterhead=No%20Letterhead' +'&settings=%7B%7D' +'&_lang=en-US';
-				fetch(pdfUrl)
-				.then(response => response.blob())
-				.then(pdfBlob => {
-					loadJSZip().then(() => {
-						const zip = new JSZip();
-						zip.file(`${formData.name}.pdf`,pdfBlob);	
-							
-						zip.generateAsync({ type: 'blob' }).then(content => {
-							// Create a download link for the ZIP file
-							const url = window.URL.createObjectURL(content);
-							var a = document.createElement('a');
-							a.href = url;
-							a.download = `Travel Request-${formData.name}.zip`;
-							a.style.display = 'none';
-							document.body.appendChild(a);
-							a.click();
-							document.body.removeChild(a);
-							window.URL.revokeObjectURL(url);
-						});
-	
-					})
-				});	
-			});	
-		}
-		
-    }
-});
-
 function loadJSZip() {
     return new Promise((resolve, reject) => {
         if (typeof JSZip === 'undefined') {
