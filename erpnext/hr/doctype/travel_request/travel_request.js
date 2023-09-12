@@ -29,21 +29,26 @@ frappe.ui.form.on("Travel Request", {
 	},
 	grade_details: function(frm) {
 		$.each(frm.doc.travel_requisition || [], function (i, row) {
-			frappe.call({
-				method: "erpnext.hr.doctype.travel_request.travel_request.get_grade_child_details",
-				async:false,
-				args: {grade:frm.doc.employee_grade,
-					mode: row.mode,
-					travelling_start_date:frm.doc.from_date,
-					travelling_end_date:frm.doc.to_date
-				},
-				callback: function(r) {
-					var options = r.message
-					var field = frappe.meta.get_docfield("Travel Requisition","class", row.name);
-					field.options = [""].concat(options);
-					cur_frm.refresh_field("class");
-				}
-			})
+			if (frm.doc.from_date){
+				frappe.call({
+					method: "erpnext.hr.doctype.travel_request.travel_request.get_grade_child_details",
+					async:false,
+					args: {grade:frm.doc.employee_grade,
+						mode: row.mode,
+						travelling_start_date:frm.doc.from_date,
+					},
+					callback: function(r) {
+						var options = r.message
+						var field = frappe.meta.get_docfield("Travel Requisition","class", row.name);
+						field.options = [""].concat(options);
+						cur_frm.refresh_field("class");
+					}
+				})
+			}
+			else{
+				frappe.throw('Please Select From Date');
+			}
+			
 		})
 	},
 	before_save :function(frm){
@@ -666,25 +671,30 @@ frappe.ui.form.on("Travel Requisition", {
 	},
 	mode:function(frm,cdt,cdn) {
 		var d = locals[cdt][cdn];
-		frappe.call({
-			method: "erpnext.hr.doctype.travel_request.travel_request.get_grade_child_details",
-			async:false,
-			args: {grade:frm.doc.employee_grade,
-				mode: d.mode,
-				travelling_start_date:frm.doc.from_date,
-			},
-			callback: function(r) {
-				var options = r.message
-				
-				var field = frappe.meta.get_docfield(cdt, "class", cdn);
-				field.options = null;
-				cur_frm.refresh_field("class");
-				field.options = [""].concat(options);
-				frappe.model.set_value(cdt, cdn, "class", "");
-				cur_frm.refresh_field("class");
-				frm.refresh_field('travel_requisition');
-			}
-		})
+		if (frm.doc.from_date){
+			frappe.call({
+				method: "erpnext.hr.doctype.travel_request.travel_request.get_grade_child_details",
+				async:false,
+				args: {grade:frm.doc.employee_grade,
+					mode: d.mode,
+					travelling_start_date:frm.doc.from_date,
+				},
+				callback: function(r) {
+					var options = r.message
+					
+					var field = frappe.meta.get_docfield(cdt, "class", cdn);
+					field.options = null;
+					cur_frm.refresh_field("class");
+					field.options = [""].concat(options);
+					frappe.model.set_value(cdt, cdn, "class", "");
+					cur_frm.refresh_field("class");
+					frm.refresh_field('travel_requisition');
+				}
+			})
+		}else{
+			frappe.throw('Please Select From Date');
+		}
+		
 	},
 	
 });
