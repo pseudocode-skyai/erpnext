@@ -268,7 +268,7 @@ frappe.ui.form.on("Travel Request", {
 										const url = window.URL.createObjectURL(content);
 										var a = document.createElement('a');
 										a.href = url;
-										a.download = `Vehicle Reimbursement-${formData.name}.zip`;
+										a.download = `Travel Request-${formData.name}.zip`;
 										a.style.display = 'none';
 										document.body.appendChild(a);
 										a.click();
