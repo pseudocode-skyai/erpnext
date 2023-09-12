@@ -459,13 +459,13 @@
    "collapsible_depends_on": "eval:doc.admin_remark != null",
    "depends_on": "eval:doc.admin_remark != null",
    "fieldname": "admin_officer_remark_section",
-   "fieldtype": "Section Break",
-   "label": "Admin Officer Remark"
+   "fieldtype": "Section Break"
   },
   {
    "allow_on_submit": 1,
    "fieldname": "admin_remark",
    "fieldtype": "Small Text",
+   "label": "Admin Officer Remark",
    "read_only": 1
   },
   {
@@ -491,7 +491,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-11 14:36:42.134304",
+ "modified": "2023-09-12 16:38:43.002688",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",

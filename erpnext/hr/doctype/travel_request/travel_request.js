@@ -238,31 +238,52 @@ frappe.ui.form.on("Travel Request", {
 				const url = new URL(window.location.href);
 				const pdfUrl = `${ `${`${url.protocol}//${url.host}/`}api/method/frappe.utils.print_format.download_pdf?`}doctype=${encodeURIComponent(formData.doctype)}&name=${encodeURIComponent(formData.name)}` +
 				'&format=Standard' +'&no_letterhead=1' +'&letterhead=No%20Letterhead' +'&settings=%7B%7D' +'&_lang=en-US';
-
-				fetch(pdfUrl)
-				.then(response => response.blob())
-				.then(pdfBlob => {
-					loadJSZip().then(() => {
-						const zip = new JSZip();
-						zip.file(`${formData.name}.pdf`,pdfBlob);	
-							
-						zip.generateAsync({ type: 'blob' }).then(content => {
-							// Create a download link for the ZIP file
-							const url = window.URL.createObjectURL(content);
-							var a = document.createElement('a');
-							a.href = url;
-							a.download = `Travel Request-${formData.name}.zip`;
-							a.style.display = 'none';
-							document.body.appendChild(a);
-							a.click();
-							document.body.removeChild(a);
-							window.URL.revokeObjectURL(url);
-						});
+				var arr = [];
+				if (cur_frm.doc.ticket_attachment) {
+					var parts = cur_frm.doc.ticket_attachment.split('/');
+					var fileName = parts[parts.length - 1];
+					arr.push(fileName);
+				}
+				frappe.call({
+					method: "frappe.core.doctype.file.file.zip_files",
+					args: {
+						files: JSON.stringify(arr) // Provide the full file path as a JSON string
+					},
+					callback: function(response) {
+						if (response.message) {
+							// Create a JSZip instance to create a ZIP archive
+							fetch(pdfUrl)
+							.then(response => response.blob())
+							.then(pdfBlob => {
+								loadJSZip().then(() => {
+									const zip = new JSZip();
+									zip.file(`${formData.name}.pdf`,pdfBlob);	
+										
+									const zipBlob = new Blob([new Uint8Array(response.message)], { type: 'application/zip' });
+									if (zipBlob) {
+										zip.file('Bill Attachments.zip', zipBlob);
+									}
+									zip.generateAsync({ type: 'blob' }).then(content => {
+										// Create a download link for the ZIP file
+										const url = window.URL.createObjectURL(content);
+										var a = document.createElement('a');
+										a.href = url;
+										a.download = `Vehicle Reimbursement-${formData.name}.zip`;
+										a.style.display = 'none';
+										document.body.appendChild(a);
+										a.click();
+										document.body.removeChild(a);
+										window.URL.revokeObjectURL(url);
+									});
 	
-					})
-				});	
+								})
+				
+						});
+						}
+					}
+				});
 			});	
-		}
+		}	
 	},
 
 	admin_remark: function(frm){
