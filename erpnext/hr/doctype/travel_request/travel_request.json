@@ -83,7 +83,8 @@
    "fieldtype": "Link",
    "hidden": 1,
    "label": "Prepared By",
-   "options": "User"
+   "options": "User",
+   "print_hide": 1
   },
   {
    "fieldname": "employee_grade",
@@ -419,7 +420,7 @@
    "label": "Checker Remark",
    "options": "Travel Request Accountant Remark Table",
    "read_only": 1,
-   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Check Role') || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\""
+   "read_only_depends_on": "eval:!frappe.user.has_role('Travel Check Role') || doc.status ==\"Reject\"\n|| doc.status ==\"Approved\"|| doc.status ==\"Advance Amount Processed\" || doc.status ==\"Ticket Booked\"\n|| doc.status ==\"Ticket Cancelled\""
   },
   {
    "allow_on_submit": 1,
@@ -477,7 +478,8 @@
    "depends_on": "eval:doc.ticket_book ===1",
    "fieldname": "ticket_attachment",
    "fieldtype": "Attach",
-   "label": "Ticket Attachment"
+   "label": "Ticket Attachment",
+   "print_hide": 1
   },
   {
    "fieldname": "column_break_21",
@@ -491,7 +493,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-12 18:40:28.813666",
+ "modified": "2023-09-13 13:04:42.696894",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",

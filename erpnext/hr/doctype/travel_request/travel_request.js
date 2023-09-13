@@ -294,7 +294,7 @@ frappe.ui.form.on("Travel Request", {
 	admin_remark: function(frm){
 		if (cur_frm.doc.admin_remark != ""){
 			frappe.call({
-				method:"erpnext.hr.doctype.travel_request.travel_request.admin_remark",
+				method:"erpnext.hr.doctype.travel_request.travel_request.update_admin_remark",
 				args: {docname: cur_frm.doc.name,
 					admin_remark:cur_frm.doc.admin_remark
 				}
