@@ -91,6 +91,9 @@ frappe.ui.form.on("Travel Request", {
 				})
 			}
 		}
+		frm.fields_dict['travel_request_accountant_remark_table'].grid.grid_buttons.addClass('hidden');
+		frm.fields_dict['travel_request_hod_remark_table'].grid.grid_buttons.addClass('hidden');
+
 		
 		cur_frm.page.clear_primary_action();
 		cur_frm.page.clear_secondary_action();
