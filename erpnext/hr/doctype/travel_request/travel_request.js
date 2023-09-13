@@ -197,7 +197,7 @@ frappe.ui.form.on("Travel Request", {
 								if (doc.status == "To Be Check" ){
 									cur_frm.add_custom_button(__('Check'), () => cur_frm.events.checking(), __("Status"));
 								}
-								if (cur_frm.doc.status != "Advance Amount Processed" && (cur_frm.doc.status === "Approved" ||  cur_frm.doc.status === "Ticket Booked" || cur_frm.doc.status === "Ticket Cancelled"))
+								if (cur_frm.doc.advance_processed != 1  && (cur_frm.doc.status === "Approved" ||  cur_frm.doc.status === "Ticket Booked" || cur_frm.doc.status === "Ticket Cancelled"))
 									cur_frm.add_custom_button(__('Advance Processed'), () => cur_frm.events.advance_amount_processed());
 
 								if(cur_frm.doc.admin_remark) {
