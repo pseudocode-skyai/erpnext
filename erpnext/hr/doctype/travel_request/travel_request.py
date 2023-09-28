@@ -13,6 +13,7 @@ class TravelRequest(Document):
 	def autoname(self):
 		self.name =  make_autoname(self.employee + "-" +(str(self.from_date))+ "-" + ".##")
 		self.requition_no = make_autoname(self.employee_name + "-.##")
+		self.application_id =self.name
         
 	def validate(self):
 		validate_active_employee(self.employee)

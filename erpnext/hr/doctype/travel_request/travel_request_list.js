@@ -41,5 +41,6 @@ frappe.listview_settings['Travel Request'] = {
     hide_name_column: true,
     onload: function(me) {
 		me.$page.find(`div[data-fieldname='name']`).addClass('hide');
+		me.$page.find('.page-head .menu-btn-group').css('display', 'none');
     },
 }

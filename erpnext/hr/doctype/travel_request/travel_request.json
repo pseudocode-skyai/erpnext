@@ -403,7 +403,8 @@
    "fieldname": "application_id",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Application ID"
+   "label": "Application ID",
+   "set_only_once": 1
   },
   {
    "fieldname": "travel_request_hod_remark_table",
@@ -493,7 +494,7 @@
  "hide_toolbar": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-13 13:04:42.696894",
+ "modified": "2023-09-26 11:35:19.174664",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Request",
