@@ -13,7 +13,9 @@
   "is_active",
   "column_break_3",
   "company",
-  "optional_holiday_list"
+  "optional_holiday_list",
+  "date_to",
+  "date_from"
  ],
  "fields": [
   {
@@ -53,14 +55,25 @@
    "fieldtype": "Link",
    "label": "Holiday List for Optional Leave",
    "options": "Holiday List"
+  },
+  {
+   "fieldname": "date_to",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date To"
+  },
+  {
+   "fieldname": "date_from",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date From"
   }
  ],
  "links": [],
- "modified": "2022-01-13 13:28:12.951025",
+ "modified": "2023-09-28 19:08:15.173768",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Leave Period",
- "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -100,9 +113,8 @@
    "write": 1
   }
  ],
- "search_fields": "from_date, to_date, company",
+ "search_fields": "date_from, date_to,company",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
  "track_changes": 1
 }
