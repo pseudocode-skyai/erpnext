@@ -285,19 +285,25 @@ frappe.ui.form.on('Customer',  {
 						primary_email_id = (r.message[0].primary_email_id);
 						person_name = r.message[0].name
 
-						if ((primary_email_id && primary_email_id != v.primary_email_id || (primary_email_id == "" || primary_email_id == undefined)) || (designation && designation != v.designation|| (designation == "" || designation == undefined)) || (department && department != v.department|| (department == "" || department == undefined)) || (primary_mobile_number && primary_mobile_number != v.primary_mobile_number|| (primary_mobile_number == "" || primary_mobile_number == undefined))){
-							frappe.call({
-								async:false,
-								method:"erpnext.selling.doctype.customer.customer.contact_update",
-								args: {
-									name: v.contact_name,
-									designation:v.designation,
-									department:v.department,
-									primary_email_id:v.primary_email_id,
-									primary_mobile_number:v.primary_mobile_number
-								},
-							})
+					       // Add arguments only if they are defined (not undefined)
+						   if (v.designation !== undefined) {
+							args.designation = v.designation;
 						}
+						if (v.department !== undefined) {
+							args.department = v.department;
+						}
+						if (v.primary_email_id !== undefined) {
+							args.primary_email_id = v.primary_email_id;
+						}
+						if (v.primary_mobile_number !== undefined) {
+							args.primary_mobile_number = v.primary_mobile_number;
+						}
+				
+						frappe.call({
+							async: false,
+							method: "erpnext.selling.doctype.customer.customer.contact_update",
+							args: args,
+						});
 					}
 				});
 			}
