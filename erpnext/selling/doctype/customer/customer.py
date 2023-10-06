@@ -759,16 +759,18 @@ def contact_person(**args):
 	contact_person_detail.insert(ignore_mandatory=True, ignore_permissions = True)
 
 
-
-@frappe.whitelist()
-def delete_customer_contact_person(name):
-	frappe.delete_doc("Customer Contact Person", name)	
-
-
 @frappe.whitelist()
 def remove_person(name):
 	frappe.delete_doc("Customer Contact Person", name)	
 
+@frappe.whitelist()
+def contact_update(name,department,designation,primary_mobile_number,primary_email_id):
+	ccp = frappe.get_doc("Customer Contact Person", name)
+	ccp.department = department
+	ccp.designation = designation
+	ccp.primary_mobile_number = primary_mobile_number
+	ccp.primary_email_id = primary_email_id
+	ccp.save()
 
 
 @frappe.whitelist()

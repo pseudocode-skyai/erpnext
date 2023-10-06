@@ -21,7 +21,8 @@
    "fieldname": "person_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Person Name"
+   "label": "Person Name",
+   "read_only": 1
   },
   {
    "columns": 3,
@@ -68,7 +69,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-03-21 16:14:51.799085",
+ "modified": "2023-10-06 17:47:58.699788",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Customer Contact Person Details",
