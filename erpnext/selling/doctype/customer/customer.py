@@ -761,7 +761,7 @@ def contact_person(**args):
 
 @frappe.whitelist()
 def remove_person(name):
-	frappe.delete_doc("Customer Contact Person", name)	
+	frappe.delete_doc("Customer Contact Person", name)
 
 @frappe.whitelist()
 def contact_update(name,department,designation,primary_mobile_number,primary_email_id):
