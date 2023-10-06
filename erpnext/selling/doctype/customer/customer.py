@@ -764,16 +764,6 @@ def remove_person(name):
 	frappe.delete_doc("Customer Contact Person", name)
 
 @frappe.whitelist()
-def contact_update(name,department,designation,primary_mobile_number,primary_email_id):
-	ccp = frappe.get_doc("Customer Contact Person", name)
-	ccp.department = department
-	ccp.designation = designation
-	ccp.primary_mobile_number = primary_mobile_number
-	ccp.primary_email_id = primary_email_id
-	ccp.save()
-
-
-@frappe.whitelist()
 def remove_customer_address(name,address_name):
 	to_remove = []
 	address = frappe.get_doc("Address", address_name)

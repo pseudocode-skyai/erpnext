@@ -287,16 +287,18 @@ frappe.ui.form.on('Customer',  {
 
 						if ((primary_email_id && primary_email_id != v.primary_email_id || (primary_email_id == "" || primary_email_id == undefined)) || (designation && designation != v.designation|| (designation == "" || designation == undefined)) || (department && department != v.department|| (department == "" || department == undefined)) || (primary_mobile_number && primary_mobile_number != v.primary_mobile_number|| (primary_mobile_number == "" || primary_mobile_number == undefined))){
 							frappe.call({
-								async:false,
-								method:"erpnext.selling.doctype.customer.customer.contact_update",
-								args: {
-									name: v.contact_name,
-									designation:v.designation,
-									department:v.department,
-									primary_email_id:v.primary_email_id,
-									primary_mobile_number:v.primary_mobile_number
-								},
-							})
+								"method": "frappe.client.set_value",
+								"args": {
+									"doctype": "Customer Contact Person",
+									"name": person_name,
+									"fieldname": {
+										"primary_email_id": v.primary_email_id,
+										"designation": v.designation,
+										"department": v.department,		
+										"primary_mobile_number": v.primary_mobile_number						
+									},
+								}
+							});
 						}
 					}
 				});
