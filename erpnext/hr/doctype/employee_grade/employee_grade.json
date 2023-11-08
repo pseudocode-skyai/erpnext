@@ -18,9 +18,10 @@
    "options": "Salary Structure"
   }
  ],
+ "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2020-08-26 13:12:07.815330",
+ "modified": "2023-05-01 18:57:46.614490",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Grade",

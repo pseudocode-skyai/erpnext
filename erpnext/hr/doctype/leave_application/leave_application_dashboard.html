@@ -5,25 +5,49 @@
 		<tr>
 			<th style="width: 16%">{{ __("Leave Type") }}</th>
 			<th style="width: 16%" class="text-right">{{ __("Total Allocated Leave(s)") }}</th>
-			<th style="width: 16%" class="text-right">{{ __("Expired Leave(s)") }}</th>
+			<!-- <th style="width: 16%" class="text-right">{{ __("Expired Leave(s)") }}</th> -->
 			<th style="width: 16%" class="text-right">{{ __("Used Leave(s)") }}</th>
 			<th style="width: 16%" class="text-right">{{ __("Leave(s) Pending Approval") }}</th>
 			<th style="width: 16%" class="text-right">{{ __("Available Leave(s)") }}</th>
+			<!-- <th style="width: 16%" class="text-right">{{ __("Projected Available Leave(s)") }}</th>  -->
 		</tr>
 	</thead>
 	<tbody>
 		{% for(const [key, value] of Object.entries(data)) { %}
 			<tr>
 				<td> {%= key %} </td>
-				<td class="text-right"> {%= value["total_leaves"] %} </td>
-				<td class="text-right"> {%= value["expired_leaves"] %} </td>
-				<td class="text-right"> {%= value["leaves_taken"] %} </td>
-				<td class="text-right"> {%= value["leaves_pending_approval"] %} </td>
+				<td class="text-right"> {%= value["total_leaves"] + value["opening_used_leave"] %} </td>
+				<!-- <td class="text-right"> {%= value["expired_leaves"] %} </td> -->
+				<td class="text-right"> {%= value["leaves_taken"] + value["leaves_pending_approval"] + value["opening_used_leave"]%} </td>
+				<td class="text-right"> {%= value["leaves_pending_approval"]%} </td>
 				<td class="text-right"> {%= value["remaining_leaves"] %} </td>
+				<!-- <td class="text-right"> {%= value["remaining_leaves"] - value["leaves_pending_approval"] %} </td>  -->
 			</tr>
 		{% } %}
+	</tbody>
+</table>
+
+<table class="table table-bordered small">
+	<thead>
+		<tr>
+			<th style="width: 20%" class="text-right">{{ __("Opening balance") }}</th>
+			<th style="width: 20%" class="text-right">{{ __("Monthly leave Add") }}</th>
+			<th style="width: 20%" class="text-right">{{ __("Applied Leave") }}</th>
+			<th style="width: 20%" class="text-right">{{ __("Total balance Leave") }}</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+		<tr>
+			<td class="text-right"> {{positiveBalanceAllocation}} </td>
+
+			<td class="text-right"> {{ allocation_value }} </td>
+			<td class="text-right"> {{ applied_leave }} </td>
+			<td class="text-right"> {{total_available }} </td>
+		</tr>
 	</tbody>
 </table>
 {% else %}
 <p style="margin-top: 30px;"> No Leave has been allocated. </p>
 {% endif %}
+

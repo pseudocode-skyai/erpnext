@@ -51,19 +51,51 @@ frappe.ui.form.on("Leave Application", {
 
 	make_dashboard: function(frm) {
 		var leave_details;
+		let total_available;
+		let applied_leave;
+		let allocation_value;
+		let balance;
 		let lwps;
-		if (frm.doc.employee && frm.doc.from_date) {
+		var positiveBalanceAllocation;
+	
+		if (frm.doc.employee && frm.doc.from_date && frm.doc.to_date && frm.doc.leave_type ) {
 			frappe.call({
 				method: "erpnext.hr.doctype.leave_application.leave_application.get_leave_details",
 				async: false,
 				args: {
 					employee: frm.doc.employee,
-					date: frm.doc.from_date || frm.doc.posting_date
+					date: frm.doc.from_date || frm.doc.posting_date,
+					to_date: frm.doc.to_date,
+					leave_type:frm.doc.leave_type
 				},
 				callback: function(r) {
 					if (!r.exc && r.message['leave_allocation']) {
+						
 						leave_details = r.message['leave_allocation'];
+
+						total_available = r.message['total_available'];
+						allocation_value = r.message['allocation_value'];
+						
+						applied_leave = r.message['applied_leave'];
+						balance = r.message['balance'];
+						positiveBalanceAllocation =(balance - allocation_value);
+						if (positiveBalanceAllocation < 0) {
+							positiveBalanceAllocation = 0;
+						}
+						
+						
+						frm.doc.total_available = total_available;
+						frm.doc.monthly_allocated_leaves = allocation_value;
+						frm.doc.total_used_leaves = applied_leave;
+						frm.doc.balance = balance;
+	
+						frm.refresh_field('total_available');
+						frm.refresh_field('monthly_allocated_leaves');
+						frm.refresh_field('total_used_leaves');
+						frm.refresh_field('balance');
+						
 					}
+	
 					if (!r.exc && r.message['leave_approver']) {
 						frm.set_value('leave_approver', r.message['leave_approver']);
 					}
@@ -73,12 +105,17 @@ frappe.ui.form.on("Leave Application", {
 			$("div").remove(".form-dashboard-section.custom");
 			frm.dashboard.add_section(
 				frappe.render_template('leave_application_dashboard', {
-					data: leave_details
+					data: leave_details,
+					total_available: total_available,
+					applied_leave: applied_leave,
+					allocation_value: allocation_value,
+					positiveBalanceAllocation: positiveBalanceAllocation,
 				}),
 				__("Allocated Leaves")
 			);
 			frm.dashboard.show();
-			let allowed_leave_types = Object.keys(leave_details);
+			let allowed_leave_types = Object.keys(leave_details );
+			
 
 			// lwps should be allowed, lwps don't have any allocation
 			allowed_leave_types = allowed_leave_types.concat(lwps);
@@ -94,6 +131,7 @@ frappe.ui.form.on("Leave Application", {
 	},
 
 	refresh: function(frm) {
+		frm.dashboard.links_area.hide();
 		if (frm.is_new()) {
 			frm.trigger("calculate_total_days");
 		}
@@ -149,6 +187,7 @@ frappe.ui.form.on("Leave Application", {
 		frm.trigger("make_dashboard");
 		frm.trigger("half_day_datepicker");
 		frm.trigger("calculate_total_days");
+		
 	},
 
 	half_day_date(frm) {
@@ -160,7 +199,13 @@ frappe.ui.form.on("Leave Application", {
 		var half_day_datepicker = frm.fields_dict.half_day_date.datepicker;
 		half_day_datepicker.update({
 			minDate: frappe.datetime.str_to_obj(frm.doc.from_date),
-			maxDate: frappe.datetime.str_to_obj(frm.doc.to_date)
+			maxDate: frappe.datetime.str_to_obj(frm.doc.from_date),
+		
+		});
+		half_day_datepicker.update({
+			minDate: frappe.datetime.str_to_obj(frm.doc.to_date),
+			maxDate: frappe.datetime.str_to_obj(frm.doc.to_date),
+		
 		});
 	},
 
@@ -191,7 +236,7 @@ frappe.ui.form.on("Leave Application", {
 
 			var from_date = Date.parse(frm.doc.from_date);
 			var to_date = Date.parse(frm.doc.to_date);
-
+	
 			if (to_date < from_date) {
 				frappe.msgprint(__("To Date cannot be less than From Date"));
 				frm.set_value('to_date', '');
@@ -199,7 +244,7 @@ frappe.ui.form.on("Leave Application", {
 			}
 			// server call is done to include holidays in leave days calculations
 			return frappe.call({
-				method: 'erpnext.hr.doctype.leave_application.leave_application.get_number_of_leave_days',
+				method: 'erpnext.hr.doctype.leave_application.leave_application.number_of_leave_days',
 				args: {
 					"employee": frm.doc.employee,
 					"leave_type": frm.doc.leave_type,
@@ -211,12 +256,42 @@ frappe.ui.form.on("Leave Application", {
 				callback: function(r) {
 					if (r && r.message) {
 						frm.set_value('total_leave_days', r.message);
-						frm.trigger("get_leave_balance");
+						frm.trigger("get_leave_balance").then(function () {
+						var leave_balance = frm.doc.leave_balance;
+	
+						var total_available = frm.doc.total_available || 0;
+						var total_leave_days = frm.doc.total_leave_days || 0;
+						if (total_available < 0) {
+							total_available = 0;
+						}
+	
+						if (total_leave_days > total_available) {
+							var lwp_count = total_leave_days - total_available;
+							frm.set_value('lwp_count', lwp_count);
+						} else {
+							frm.set_value('lwp_count', 0);
+						}
+						
+						var current_leave_type_count = frm.doc.total_leave_days - frm.doc.lwp_count;
+						if (current_leave_type_count < 0) {
+							current_leave_type_count = 0;
+						}
+						if (current_leave_type_count > leave_balance) {
+						    var excess_leave = current_leave_type_count - leave_balance;
+						    current_leave_type_count -= excess_leave;
+						    frm.set_value('lwp_count', frm.doc.lwp_count + excess_leave);
+						}
+						
+						frm.doc.current_leave_type_count = current_leave_type_count;
+						frm.refresh_field('current_leave_type_count');
+					});
+
 					}
 				}
 			});
 		}
 	},
+	
 
 	set_leave_approver: function(frm) {
 		if (frm.doc.employee) {
@@ -235,6 +310,137 @@ frappe.ui.form.on("Leave Application", {
 		}
 	}
 });
+frappe.ui.form.on('Leave Application', {
+    employee: function (frm) {
+        var employee_input = frm.doc.employee;
+        if (employee_input) {
+            frappe.call({
+                method: 'erpnext.hr.doctype.leave_application.leave_application.get_allowed_leave_types',
+                args: { employee_input: employee_input },
+                callback: function (r) {
+                    if (r.message) {
+                        var allowed_leave_types_for_employee = r.message;
+						
+                        // Clear existing options in the leave_type dropdown
+                        frm.fields_dict['leave_type'].get_query = function () {
+                            return {
+                                filters: [
+                                    ['Leave Type', 'name', 'in', allowed_leave_types_for_employee]
+                                ]
+                            };
+                        };
+
+                        frm.fields_dict['leave_type'].refresh();
+                    }
+                }
+            });
+        }
+    }
+});
+
+frappe.ui.form.on('Leave Application', {
+    refresh: function(frm) {
+		const cancelButton = document.querySelector('.btn.btn-secondary.btn-default.btn-sm');
+		if (cancelButton) {
+			cancelButton.style.display = 'none';
+		}
+
+
+        if (!frm.doc.__islocal) {
+            if (frm.doc.status === 'Cancelled' ) {
+                // If status is 'Cancelled', don't add any buttons
+                return;
+            }
+            
+            if ((frm.doc.status == 'Open' || frm.doc.status == 'Approved') && frappe.session.user == frm.doc.leave_approver) {
+                if (frm.doc.status == 'Approved') {
+					frm.add_custom_button(__('Rejected'), function() {
+                        frappe.confirm(
+                            __('Are you sure you want to reject this leave application?'),
+                            function() {
+                                frm.set_value('status', 'Rejected');
+                                frm.save();
+                            }
+                        );
+                    }, __("Status"));
+                } else {
+                    frm.add_custom_button(__('Approved'), function(){
+                        frm.set_value('status', 'Approved');
+                        frm.save();
+                    }, __("Status"));
+                    frm.add_custom_button(__('Rejected'), function() {
+                        frappe.confirm(
+                            __('Are you sure you want to reject this leave application?'),
+                            function() {
+                                frm.set_value('status', 'Rejected');
+                                frm.save();
+                            }
+                        );
+                    }, __("Status"));
+                }
+            } else {
+                frm.add_custom_button(__('Cancelled'), function() {
+					frappe.confirm(
+						__('Are you sure you want to Cancel this leave application?'),
+						function() {
+								if (frm.doc.docstatus === 1) {
+									// Document status is 1 (Submitted), proceed to cancel attendance records
+									frappe.call({
+										method: 'erpnext.hr.doctype.leave_application.leave_application.cancel_attendance_records',
+										args: {
+											leave_application: frm.doc.name
+										},
+										callback: function(response) {
+											response.message === 'success'
+											setTimeout(function() {
+												window.location.reload();
+											}, 4000);
+											frappe.msgprint(__('Your available leave days have been credited to your account.'));
+										}
+									});
+								} else {
+									frm.set_value('status', 'Cancelled');
+									frm.save();
+								}
+						}
+					);
+				}, __("Status"));
+				
+				
+            }
+        }
+    }
+});
+frappe.ui.form.on('Leave Application', {
+    refresh: function(frm) {
+        // Get the div element with the class "menu-btn-group" and hide it
+        var menuBtnGroup = document.querySelector('.menu-btn-group');
+        if (menuBtnGroup) {
+            menuBtnGroup.style.display = 'none';
+        }
+    }
+});
+frappe.ui.form.on('Leave Application', {
+    refresh: function(frm) {
+        // Get the form status (replace 'status' with the actual fieldname of your form status)
+        var formStatus = frm.doc.status;
+        // Check the form status and toggle the button's visibility
+        if (formStatus === 'Rejected' || formStatus === 'Approved') {
+            // Show the button if it's hidden
+            var submitButton = document.querySelector('[data-label="Submit"]');
+            if (submitButton.style.display === 'none') {
+                submitButton.style.display = 'block';
+            }
+        } else {
+            // Hide the button
+            var submitButton = document.querySelector('[data-label="Submit"]');
+            submitButton.style.display = 'none';
+			var saveButton = document.querySelector('[data-label="Save"]');
+			saveButton.style.display = 'block';
+        }
+    }
+});
+
 
 frappe.tour["Leave Application"] = [
 	{

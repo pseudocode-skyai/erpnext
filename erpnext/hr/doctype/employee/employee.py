@@ -28,17 +28,20 @@ class Employee(NestedSet):
 	nsm_parent_field = "reports_to"
 
 	def autoname(self):
+		# self.name = make_autoname("EMP-" + ".###")
+		# self.employee_code = self.name
 		naming_method = frappe.db.get_value("HR Settings", None, "emp_created_by")
 		if not naming_method:
 			throw(_("Please setup Employee Naming System in Human Resource > HR Settings"))
 		else:
 			if naming_method == "Naming Series":
 				set_name_by_naming_series(self)
-			elif naming_method == "Employee Number":
-				self.name = self.employee_number
 			elif naming_method == "Full Name":
 				self.set_employee_name()
 				self.name = self.employee_name
+			elif naming_method == "Employee Number":
+				self.name = self.employee_number
+
 
 		self.employee = self.name
 
@@ -519,3 +522,12 @@ def has_upload_permission(doc, ptype="read", user=None):
 	if get_doc_permissions(doc, user=user, ptype=ptype).get(ptype):
 		return True
 	return doc.user_id == user
+
+@frappe.whitelist()
+def get_employee_data(expense_approver):
+	if frappe.db.exists({"doctype": "Employee", "company_email": expense_approver}):
+		employee_data = frappe.get_doc("Employee", {"company_email": expense_approver})
+	else:
+		frappe.msgprint("Employee Data Not Found" + "-" + str(expense_approver))
+		employee_data = "None"
+	return employee_data

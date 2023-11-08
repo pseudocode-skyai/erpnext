@@ -285,7 +285,7 @@ frappe.ui.form.on('Customer',  {
 						primary_email_id = (r.message[0].primary_email_id);
 						person_name = r.message[0].name
 
-						if ((primary_email_id && primary_email_id != v.primary_email_id ||(city != frm.doc.city) || (primary_email_id == "" || primary_email_id == undefined)) || (designation && designation != v.designation|| (designation == "" || designation == undefined)) || (department && department != v.department|| (department == "" || department == undefined)) || (primary_mobile_number && primary_mobile_number != v.primary_mobile_number|| (primary_mobile_number == "" || primary_mobile_number == undefined))){
+						if ((primary_email_id && primary_email_id != v.primary_email_id || (primary_email_id == "" || primary_email_id == undefined)) || (designation && designation != v.designation|| (designation == "" || designation == undefined)) || (department && department != v.department|| (department == "" || department == undefined)) || (primary_mobile_number && primary_mobile_number != v.primary_mobile_number|| (primary_mobile_number == "" || primary_mobile_number == undefined))){
 							frappe.call({
 								"method": "frappe.client.set_value",
 								"args": {
@@ -415,9 +415,10 @@ frappe.ui.form.on('Customer',  {
 				customer_contact_person_details.primary_mobile_number = (values["primary_mobile_number"])
 				customer_contact_person_details.primary_email_id = (values["primary_email_id"])
 				customer_contact_person_details.primary_email_id = (values["primary_email_id"])
-				refresh_field("customer_contact_person_details")
 				d.hide();
-				window.location.reload(1);
+				refresh_field("customer_contact_person_details")
+				cur_frm.save()
+				frm.reload_doc()
 			}
 		    })
 		    d.show();  
