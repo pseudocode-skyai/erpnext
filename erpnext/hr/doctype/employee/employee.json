@@ -883,10 +883,14 @@
    "label": "Father/Spouse Name"
   },
   {
-   "default": "Hindu",
    "fieldname": "religion",
    "fieldtype": "Data",
    "label": "Religion"
+  {
+   "fieldname": "employee_grade",
+   "fieldtype": "Link",
+   "label": "Employee Grade",
+   "options": "Employee Grade"
   },
   {
    "fieldname": "is_physically_challenged",
@@ -1144,6 +1148,8 @@
    "fieldtype": "Table MultiSelect",
    "label": "Employee Vertical",
    "options": "Employee Vertical"
+   "label": "Series",
+   "options": "HR-EMP-"
   }
  ],
  "icon": "fa fa-user",
