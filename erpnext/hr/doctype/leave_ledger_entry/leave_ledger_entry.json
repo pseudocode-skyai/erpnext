@@ -14,10 +14,15 @@
   "column_break_7",
   "from_date",
   "to_date",
+  "session_date",
+  "if_half_day",
   "holiday_list",
   "is_carry_forward",
   "is_expired",
   "is_lwp",
+  "allocation_as_per_leave_type",
+  "opening_used_leave",
+  "accumulated_from_last_year",
   "amended_from"
  ],
  "fields": [
@@ -117,13 +122,41 @@
    "options": "Company",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "session_date",
+   "fieldtype": "Date",
+   "label": "Session Date"
+  },
+  {
+   "fieldname": "if_half_day",
+   "fieldtype": "Date",
+   "label": "If Half Day"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "allocation_as_per_leave_type",
+   "fieldtype": "Float",
+   "label": "Allocation as per Leave Type"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "opening_used_leave",
+   "fieldtype": "Float",
+   "label": "Opening Used leave"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "accumulated_from_last_year",
+   "fieldtype": "Float",
+   "label": "Accumulated from Last Year"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-01-04 18:47:45.146652",
+ "modified": "2023-09-08 16:30:40.795077",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Leave Ledger Entry",
