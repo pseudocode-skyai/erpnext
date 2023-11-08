@@ -3,8 +3,10 @@
 
 
 import frappe
+import erpnext
 from dateutil.relativedelta import relativedelta
 from frappe import _
+import datetime
 from frappe.desk.reportview import get_filters_cond, get_match_cond
 from frappe.model.document import Document
 from frappe.utils import (
@@ -25,9 +27,13 @@ from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 )
 from erpnext.accounts.utils import get_fiscal_year
 from erpnext.hr.doctype.employee.employee import get_holiday_list_for_employee
-
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import calendar
+from frappe.utils import nowdate, getdate, formatdate
 
 class PayrollEntry(Document):
+
 	def onload(self):
 		if not self.docstatus == 1 or self.salary_slips_submitted:
 			return
@@ -924,3 +930,39 @@ def employee_query(doctype, txt, searchfield, start, page_len, filters):
 			"include_employees": include_employees,
 		},
 	)
+
+@frappe.whitelist()
+def generate_payroll_entry():
+	payroll_setting = frappe.get_doc("Payroll Settings", "Payroll Settings")
+	if payroll_setting.date_of_payroll_entry != "" and payroll_setting.payroll_generate == "Automatically":
+		day_of_month = payroll_setting.date_of_payroll_entry
+		if day_of_month != "":
+			current_date = getdate(nowdate())
+			formatted_date = current_date.replace(day=int(day_of_month))
+			formatted_date_str = formatted_date.strftime("%Y-%m-%d")
+			if str(current_date) == formatted_date_str:
+				today = datetime.today()
+				first_day_of_month = today.replace(day=1)
+				last_day_of_month = first_day_of_month + relativedelta(day=31)
+
+				create_payroll_entry= frappe.new_doc("Payroll Entry")
+				create_payroll_entry.payroll_frequency ="Monthly"
+				create_payroll_entry.start_date = first_day_of_month
+				create_payroll_entry.end_date = last_day_of_month
+
+				salary_structure_assignments = frappe.get_all("Salary Structure Assignment",filters={"docstatus": 1},fields=["employee"])
+				employee_list_str = ", ".join([assignment.get('employee') for assignment in salary_structure_assignments if assignment.get('employee')])
+				employee_list = employee_list_str.split(", ")
+				employees = frappe.get_all("Employee",fields=["name","employee_name","department","designation"],filters={"name": ["in", employee_list]})
+				
+				for employee in employees:
+					frappe.msgprint(employee.employee_name)
+					create_payroll_entry.append('employees', {
+						'employee': employee.name,
+						"employee_name":employee.employee_name,
+						'department': employee.department,
+						'designation': employee.designation
+					})
+				create_payroll_entry.insert(ignore_mandatory=True, ignore_permissions=True)
+				create_payroll_entry.submit()
+				create_payroll_entry.submit_salary_slips()
