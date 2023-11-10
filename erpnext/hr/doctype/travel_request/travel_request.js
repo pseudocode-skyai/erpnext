@@ -217,24 +217,18 @@ frappe.ui.form.on("Travel Request", {
 					name:cur_frm.doc.name,
 				},
 				callback :function(r){
-					var administrative_officer = r.message;
 					var currentUserEmail = frappe.session.user;
-					
-					if (administrative_officer) {
-						for (var i = 0; i < administrative_officer.length; i++) {
-							if (currentUserEmail === administrative_officer[i].name) {
-								if (cur_frm.doc.status != "Ticket Booked" && (cur_frm.doc.status === "Approved" || cur_frm.doc.status === "Advance Amount Processed"))
-								cur_frm.add_custom_button(__('Ticket book'), () => cur_frm.events.ticket_booked());
-								if (cur_frm.doc.status === "Ticket Booked" && cur_frm.doc.status != "Ticket Cancelled")
-								cur_frm.add_custom_button(__('Ticket Cancel'), () => cur_frm.events.ticket_cancel());
-								if(cur_frm.doc.admin_remark) {
-									cur_frm.set_df_property("admin_remark", 'read_only', 0);
-									cur_frm.set_df_property("ticket_attachment", 'read_only', 0);
-								}
-							}
-							
+					if (currentUserEmail === r.message) {
+						if (cur_frm.doc.status != "Ticket Booked" && (cur_frm.doc.status === "Approved" || cur_frm.doc.status === "Advance Amount Processed"))
+						cur_frm.add_custom_button(__('Ticket book'), () => cur_frm.events.ticket_booked());
+						if (cur_frm.doc.status === "Ticket Booked" && cur_frm.doc.status != "Ticket Cancelled")
+						cur_frm.add_custom_button(__('Ticket Cancel'), () => cur_frm.events.ticket_cancel());
+						if(cur_frm.doc.admin_remark) {
+							cur_frm.set_df_property("admin_remark", 'read_only', 0);
+							cur_frm.set_df_property("ticket_attachment", 'read_only', 0);
 						}
 					}
+					
 				}	 
 		 });
 		if (cur_frm.doc.status=="To Be Check" && cur_frm.doc.check_remark ){

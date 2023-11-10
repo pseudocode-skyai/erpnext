@@ -11,6 +11,7 @@
   "standard_working_hours",
   "column_break_9",
   "retirement_age",
+  "admin_user",
   "reminders_section",
   "send_birthday_reminders",
   "column_break_11",
@@ -226,13 +227,21 @@
    "fieldname": "check_vacancies",
    "fieldtype": "Check",
    "label": "Check Vacancies On Job Offer Creation"
+  },
+  {
+   "fieldname": "admin_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Admin User",
+   "options": "User",
+   "reqd": 1
   }
  ],
  "icon": "fa fa-cog",
  "idx": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-10-01 23:46:11.098236",
+ "modified": "2023-11-10 10:24:22.836297",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "HR Settings",

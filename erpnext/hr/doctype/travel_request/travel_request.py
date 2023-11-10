@@ -36,7 +36,13 @@ class TravelRequest(Document):
 
 @frappe.whitelist()
 def view_travel_request_form_admin_user(name):
+	
 	get_travel_request_form = frappe.get_doc("Travel Request",name)
+	hr_settings_doc = frappe.get_doc("HR Settings", "HR Settings")
+	admin_user = hr_settings_doc.admin_user
+	share_doc_with_approver(get_travel_request_form, admin_user)
+
+	
 
 @frappe.whitelist()
 def report_to_person_view_travel_request_form(name,approving_officer):
@@ -162,12 +168,9 @@ def get_employee_data(currentUserEmail):
 
 @frappe.whitelist()
 def travel_request_form_officer(name):
-	arr = []
-	administrative_users = frappe.get_all("User", filters={"designation": "Administrative Officer"})
-	if administrative_users:
-			for user in administrative_users:
-				arr.append(user)
-			return arr
+	hr_settings_doc = frappe.get_doc("HR Settings", "HR Settings")
+	admin_user = hr_settings_doc.admin_user
+	return admin_user
 	
 @frappe.whitelist()
 def ticket_attachment_update(docname,ticket_attachment):
